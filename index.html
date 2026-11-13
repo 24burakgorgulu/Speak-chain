@@ -149,6 +149,8 @@ textarea{resize:vertical;min-height:70px}
 .controls{display:flex;flex-direction:column;gap:12px;align-items:center;padding-top:6px}
 .mic{width:84px;height:84px;border-radius:50%;border:0;background:var(--teal);color:#fff;display:grid;place-items:center;box-shadow:0 6px 18px -6px color-mix(in srgb,var(--teal) 70%,transparent)}
 .mic.on{background:var(--danger);animation:pulse 1.4s ease-in-out infinite}
+.mic.opening{background:var(--brass);animation:none}
+.kb-card{display:flex;flex-direction:column;gap:8px;align-items:center;text-align:center;background:var(--sunk);border-radius:12px;padding:12px 14px;max-width:640px;font-size:.88rem}
 .mic:disabled{opacity:.45;animation:none}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--danger) 45%,transparent)}50%{box-shadow:0 0 0 14px transparent}}
 .typed{display:flex;gap:8px;width:100%;max-width:640px}
@@ -422,17 +424,24 @@ function ttsChunks(text){
   return out;
 }
 function makeUtt(t){
-  const u = new SpeechSynthesisUtterance(t); const v = pickVoice(); if(v) u.voice = v;
+  const u = new SpeechSynthesisUtterance(t);
+  const v = (IS_IOS && !state.settings.voiceURI) ? null : pickVoice(); if(v) u.voice = v;
   u.lang = v ? v.lang : 'en-US'; u.rate = state.settings.rate || 1;
   u.onerror = e => { if(e.error !== 'interrupted' && e.error !== 'canceled') diag('Ses hatası: ' + (e.error || '?')); };
   return u;
 }
-// iOS drops an utterance queued right after cancel(), so cancel only when something is playing and wait briefly.
+let ttsWatch = null;
 function speak(text, force){
   if(!canTTS || !text || (!state.settings.tts && !force)) return;
   const synth = speechSynthesis, list = ttsChunks(text);
-  const play = () => { try{ synth.resume(); list.forEach((c, i) => { const u = makeUtt(c); if(i === 0){ u.onstart = () => diag('Ses çalmaya başladı'); } synth.speak(u); }); }catch(e){ diag('Ses çalınamadı: ' + e.message); } };
-  if(synth.speaking || synth.pending){ synth.cancel(); setTimeout(play, 150); } else play();
+  let started = false;
+  try{
+    if(force && (synth.speaking || synth.pending)) synth.cancel();
+    synth.resume();
+    list.forEach((c, i) => { const u = makeUtt(c); if(i === 0){ u.onstart = () => { started = true; diag('Ses çalmaya başladı'); }; } synth.speak(u); });
+  }catch(e){ diag('Ses çalınamadı: ' + e.message); }
+  clearTimeout(ttsWatch);
+  ttsWatch = setTimeout(() => { if(!started && !synth.speaking){ diag('Ses başlamadı'); if(state.view === 'session') toast('Ses çalmadı. Dinlemek için "🔊 AI\'ın son cevabını dinle" butonuna bas.'); } }, 2500);
 }
 function stopSpeak(){ try{ if(canTTS && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel(); }catch{} }
 // iOS only lets a page speak after it has spoken once inside a tap. Called from the start button.
@@ -440,7 +449,7 @@ function unlockTTS(){ if(!canTTS || !state.settings.tts) return; try{ const u = 
 
 // ---------- speech recognition ----------
 // target: 'chat' | 'itep-prep' | 'itep-speak' | 'retry'
-const dict = { target:null, want:false, active:false, base:'', fin:'', interim:'', skip:0, lastLen:0, startAt:0, segStart:0, activeMs:0, emptyRestarts:0, gotResult:false, heard:false, stopWaiters:[], r:null };
+const dict = { target:null, want:false, active:false, base:'', fin:'', interim:'', skip:0, lastLen:0, startAt:0, segStart:0, activeMs:0, emptyRestarts:0, gotResult:false, heard:false, audio:false, fails:0, openTimer:null, stopWaiters:[], r:null };
 function srText(){ return join(dict.base, dict.fin); }
 function srLive(){ return join(dict.base, dict.fin, dict.interim); }
 function srStart(target, keep){
@@ -461,11 +470,14 @@ const SR_MSG = {
 function segEnd(){ if(dict.segStart){ dict.activeMs += Date.now() - dict.segStart; dict.segStart = 0; } }
 function openRec(isRestart){
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(dict.r){ try{ dict.r.onend = null; dict.r.abort(); }catch{} dict.r = null; }
   const r = new SR(); r.lang = 'en-US'; r.continuous = true; r.interimResults = true; r.maxAlternatives = 1;
+  dict.audio = false;
   dict.skip = 0; dict.lastLen = 0; dict.gotResult = false; dict.heard = false;
-  r.onstart = () => diag('Mikrofon açıldı');
-  r.onaudiostart = () => diag('Ses alınıyor');
-  r.onspeechstart = () => { dict.heard = true; diag('Konuşma algılandı'); };
+  // either event means the mic is live; WebKit may fire only one of them
+  r.onstart = () => { dict.audio = true; clearTimeout(dict.openTimer); diag('Mikrofon açıldı'); micUI(); };
+  r.onaudiostart = () => { dict.audio = true; clearTimeout(dict.openTimer); diag('Ses alınıyor'); micUI(); };
+  r.onspeechstart = () => { dict.heard = true; dict.audio = true; diag('Konuşma algılandı'); micUI(); };
   r.onresult = e => {
     let f = '', i = '';
     for(let k = dict.skip; k < e.results.length; k++){ const res = e.results[k]; if(res.isFinal) f += ' ' + res[0].transcript; else i += ' ' + res[0].transcript; }
@@ -493,6 +505,8 @@ function openRec(isRestart){
   };
   try{ r.start(); }catch(e){ diag('Mikrofon başlatılamadı: ' + e.message); dict.active = false; dict.want = false; micUI(); if(!isRestart) toast('Mikrofon başlatılamadı.'); return false; }
   dict.r = r; dict.active = true; if(!dict.segStart) dict.segStart = Date.now(); micUI();
+  clearTimeout(dict.openTimer);
+  dict.openTimer = setTimeout(() => { if(dict.r === r && dict.active && !dict.audio){ diag('Mikrofon 4 sn içinde açılmadı'); try{ r.abort(); }catch{} } }, 4000);
   return true;
 }
 function srStop(){
@@ -510,21 +524,27 @@ function srChanged(){
   if(dict.target === 'diag'){ const el = document.getElementById('diagLive'); if(el) el.textContent = srLive() || '…'; }
 }
 function srEndedOnItsOwn(){
-  if(dict.target === 'chat'){ if(state.sess){ state.sess.live = srLive(); } renderSession(); if(!srText()) toast(dict.heard ? 'Ses alındı ama metne çevrilemedi. Daha yakından ve net konuşup tekrar dene.' : 'Seni duyamadım. Mikrofona bas ve tekrar dene.'); }
+  if(dict.target === 'chat'){
+    if(state.sess){ state.sess.live = srLive(); }
+    if(!srText()){ dict.fails++; toast(!dict.audio ? 'Mikrofon açılamadı. Tekrar bas.' : dict.heard ? 'Ses alındı ama metne çevrilemedi. Daha yakından ve net konuşup tekrar dene.' : 'Seni duyamadım. Mikrofon kırmızıyken konuş.'); }
+    else dict.fails = 0;
+    renderSession();
+  }
   else if(dict.target === 'diag'){ diagMicUI(); }
   else if(dict.target === 'itep-speak' || dict.target === 'itep-prep'){ if(state.view === 'session') renderSession(); }
   else if(dict.target === 'retry' && retry.idx != null){ const b = document.querySelector(`[data-retry="${retry.idx}"]`); finishRetry(b); }
 }
 function micHintText(){
   const S = state.sess; if(!S) return '';
-  if(dict.active) return 'Dinliyorum. Bitirince tekrar bas, cevabın gönderilir.';
+  if(dict.active && !dict.audio) return 'Mikrofon açılıyor, bekle…';
+  if(dict.active) return 'Dinliyorum, konuş. Bitirince tekrar bas, cevabın gönderilir.';
   if(S.busy) return 'AI cevaplıyor…';
   if(dict.target === 'chat' && srText()) return 'Mikrofon durdu. Devam etmek için mikrofona, bitirdiysen Gönder\'e bas.';
   return 'Mikrofona bas ve konuş.';
 }
 function micUI(){
   const on = dict.active;
-  const mic = $('#micBtn'); if(mic){ mic.classList.toggle('on', on); mic.setAttribute('aria-label', on ? 'Bitir ve gönder' : 'Konuşmaya başla'); mic.disabled = !on && !!(state.sess && state.sess.busy); }
+  const mic = $('#micBtn'); if(mic){ mic.classList.toggle('on', on && dict.audio); mic.classList.toggle('opening', on && !dict.audio); mic.setAttribute('aria-label', on ? 'Bitir ve gönder' : 'Konuşmaya başla'); mic.disabled = !on && !!(state.sess && state.sess.busy); }
   const h = $('#micHint'); if(h && state.sess) h.textContent = micHintText();
   const ro = $('#micReopen'); if(ro) ro.hidden = on;
   diagMicUI();
@@ -945,7 +965,9 @@ function sessionHTML(){
   const streaming = S.busy ? `<div class="msg ai" id="streamMsg">${S.streaming?esc(S.streaming):'<span class="spinner" aria-label="AI yazıyor"></span>'}</div>` : '';
   const live = `<div class="msg me live" id="liveMsg" ${S.live?'':'hidden'}>${esc(S.live)}</div>`;
   const controls = `<div class="controls">
-    ${canMic ? `<button class="mic${dict.active?' on':''}" id="micBtn" aria-label="${dict.active?'Bitir ve gönder':'Konuşmaya başla'}" ${S.busy && !dict.active?'disabled':''}>${MIC_SVG}</button>
+    ${(canMic && dict.fails >= 2 && !state.settings.kbDictation) ? `<div class="kb-card"><span>Mikrofon iPhone'da kararsız çalışıyor olabilir. Klavyenin kendi mikrofonuyla dikte etmek daha güvenilir.</span><button class="btn small" id="kbOn">Klavye diktesine geç</button></div>` : ''}
+    ${state.settings.kbDictation ? `<div class="kb-card"><span>Yazı kutusuna dokun, klavyede İngilizce klavyeye geç ve <b>🎤</b> tuşuyla konuş. Bitince Gönder'e bas.</span><button class="btn small" id="kbOff">Uygulamanın mikrofonunu kullan</button></div>` : ''}
+    ${canMic && !state.settings.kbDictation ? `<button class="mic${dict.active?(dict.audio?' on':' opening'):''}" id="micBtn" aria-label="${dict.active?'Bitir ve gönder':'Konuşmaya başla'}" ${S.busy && !dict.active?'disabled':''}>${MIC_SVG}</button>
       <p class="muted" style="font-size:.85rem;text-align:center" id="micHint">${micHintText()}</p>` : ''}
     ${lastAI && !S.busy ? `<button class="btn small" id="replayBtn">🔊 AI'ın son cevabını dinle</button>` : ''}
     <div class="typed"><textarea id="typedIn" placeholder="${state.settings.kbDictation ? 'Klavyedeki mikrofon tuşuyla konuş' : IS_IOS ? 'Ya da yaz veya klavyenin mikrofon tuşuyla dikte et' : canMic ? 'Ya da cevabını yaz (yazılan cevaplar akıcılık ölçümüne girmez)' : 'Cevabını yaz'}" ${S.busy?'disabled':''}>${esc(S.typedDraft||'')}</textarea><button class="btn primary" id="sendTyped" ${S.busy?'disabled':''}>Gönder</button></div>
@@ -1112,6 +1134,7 @@ document.addEventListener('click', e => {
     return;
   }
   if(t.closest('#micReopen')){ if(state.sess && state.sess.itep && state.sess.itep.phase === 'speak'){ dict.target = 'itep-speak'; srStart('itep-speak', true); } return; }
+  if(t.closest('#kbOn') || t.closest('#kbOff')){ state.settings.kbDictation = !!t.closest('#kbOn'); dict.fails = 0; saveSettings(); renderSession(); if(state.settings.kbDictation){ const ta = $('#typedIn'); ta && ta.focus(); } return; }
   if(t.closest('#replayBtn')){ const S = state.sess; const last = S && [...S.turns].reverse().find(x => x.role === 'ai'); if(last) speak(last.text, true); return; }
   if(t.closest('#sendTyped')){ sendTyped(); return; }
   if(t.closest('#endBtn')){ endSession(); return; }
