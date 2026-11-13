@@ -273,13 +273,19 @@ function saveSession(s){ const i = state.sessions.findIndex(x => x.id === s.id);
 function deleteSession(id){ state.sessions = state.sessions.filter(x => x.id !== id); persist(); }
 function saveSettings(){ persist(); }
 const hasKey = () => !!state.settings.apiKey;
+const IS_IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const STANDALONE = navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+const diagLog = [];
+function diag(m){ diagLog.push(new Date().toLocaleTimeString('tr-TR') + '  ' + m); if(diagLog.length > 80) diagLog.shift(); const el = document.getElementById('diagOut'); if(el){ el.textContent = diagLog.join('\n'); el.scrollTop = el.scrollHeight; } }
 const canMic = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 const canTTS = 'speechSynthesis' in window;
 try{ navigator.storage && navigator.storage.persist && navigator.storage.persist(); }catch{}
 
 // ---------- Gemini API ----------
 const GEMINI = 'https://generativelanguage.googleapis.com/v1beta/';
-let thinkingSupported = true;   // switched off if the API rejects the thinking setting
+const thinkOK = {minimal:true, low:true};   // levels the API has rejected are switched off
+const THINK_NEXT = {minimal:'low', low:null};
+const thinkLevel = l => { while(l && !thinkOK[l]) l = THINK_NEXT[l]; return l; };
 async function geminiFetch(path, body){
   let res;
   try{
@@ -292,21 +298,24 @@ function partsText(cand){ return (cand?.content?.parts || []).filter(p => !p.tho
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const isTransient = e => e && e.code === 'http' && (e.status >= 500 || e.status === 408);
 const modelSwap = {};   // model -> working substitute for the rest of this app session
-async function callModel(model, {system, messages, max_tokens, onText, json}){
-  const build = noThink => ({
+async function callModel(model, {system, messages, max_tokens, onText, json, think = 'minimal'}){
+  const build = () => { const lv = thinkLevel(think); return {
     contents: messages.map(m => ({role: m.role === 'assistant' ? 'model' : 'user', parts:[{text:m.content}]})),
     ...(system ? {systemInstruction:{parts:[{text:system}]}} : {}),
-    generationConfig: { maxOutputTokens: max_tokens, ...(json ? {responseMimeType:'application/json'} : {}), ...(thinkingSupported && !noThink ? {thinkingConfig:{thinkingLevel:'low'}} : {}) }
-  });
+    generationConfig: { maxOutputTokens: max_tokens, ...(json ? {responseMimeType:'application/json'} : {}), ...(lv ? {thinkingConfig:{thinkingLevel:lv}} : {}) }
+  }; };
   const path = `models/${encodeURIComponent(model)}:${onText ? 'streamGenerateContent?alt=sse' : 'generateContent'}`;
+  const t0 = Date.now();
   let res, last;
-  for(let attempt = 0; attempt < 3; attempt++){
-    try{ res = await geminiFetch(path, build(attempt === 2)); break; }
+  for(let attempt = 0; attempt < 2; attempt++){
+    try{ res = await geminiFetch(path, build()); break; }
     catch(e){
       e.model = model; last = e;
-      if(thinkingSupported && e.code === 'http' && e.status === 400 && /thinking/i.test(e.message || '')){ thinkingSupported = false; attempt--; continue; }
-      if(!isTransient(e) || attempt === 2) throw e;
-      await sleep(attempt === 0 ? 1200 : 3500);
+      const lv = thinkLevel(think);
+      if(lv && e.code === 'http' && e.status === 400 && /thinking/i.test(e.message || '')){ thinkOK[lv] = false; diag('Düşünme seviyesi "' + lv + '" desteklenmiyor, düşürüldü'); attempt--; continue; }
+      diag(model + ' hata ' + (e.status || e.code));
+      if(!isTransient(e) || attempt === 1) throw e;
+      await sleep(900);
     }
   }
   if(!res) throw last;
@@ -329,6 +338,7 @@ async function callModel(model, {system, messages, max_tokens, onText, json}){
     if(block || finish === 'SAFETY' || finish === 'PROHIBITED_CONTENT') throw {code:'blocked', model};
     if(finish === 'MAX_TOKENS') throw {code:'truncated', model};
   }
+  diag(model + ' cevap verdi: ' + ((Date.now() - t0)/1000).toFixed(1) + ' sn');
   return text;
 }
 // Same-class models to fall back to when one is overloaded, missing or out of free quota.
@@ -370,8 +380,8 @@ function parseJSON(t){
   const a = t.indexOf('{'), b = t.lastIndexOf('}'); if(a >= 0 && b > a){ try{ return JSON.parse(t.slice(a, b+1)); }catch{} }
   throw {code:'invalid_json'};
 }
-async function askJSON(prompt, {quick = false, max_tokens = 4000} = {}){
-  const t = await callAI({messages:[{role:'user', content:prompt}], model: quick ? state.settings.quickModel : state.settings.model, max_tokens, json:true, system:'Reply with a single valid JSON value only. No prose, no markdown fences.'});
+async function askJSON(prompt, {quick = false, max_tokens = 4000, think = 'minimal'} = {}){
+  const t = await callAI({messages:[{role:'user', content:prompt}], model: quick ? state.settings.quickModel : state.settings.model, max_tokens, json:true, think, system:'Reply with a single valid JSON value only. No prose, no markdown fences.'});
   return parseJSON(t);
 }
 function apiErr(e){
@@ -397,86 +407,129 @@ function apiErr(e){
 
 // ---------- speech synthesis ----------
 let voices = [];
-function loadVoices(){ if(!canTTS) return; voices = speechSynthesis.getVoices().filter(v => /^en[-_]/i.test(v.lang)); if(state.view === 'settings') renderVoiceSelect(); }
+function loadVoices(){ if(!canTTS) return; voices = speechSynthesis.getVoices().filter(v => /^en[-_]/i.test(v.lang)); if(state.view === 'settings'){ renderVoiceSelect(); const vc = document.getElementById('voiceCount'); if(vc) vc.textContent = voices.length; } }
 if(canTTS){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
 function pickVoice(){
   const s = state.settings.voiceURI; if(s){ const v = voices.find(v => v.voiceURI === s); if(v) return v; }
   const us = voices.filter(v => /en[-_]US/i.test(v.lang));
   return us.find(v => /premium|enhanced/i.test(v.name)) || us.find(v => /samantha|ava|allison|nicky/i.test(v.name)) || us[0] || voices[0] || null;
 }
+function ttsChunks(text){
+  const parts = String(text).replace(/\s+/g, ' ').match(/[^.!?]+[.!?]*\s*/g) || [text];
+  const out = []; let cur = '';
+  for(const p of parts){ if((cur + p).length > 220 && cur){ out.push(cur.trim()); cur = p; } else cur += p; }
+  if(cur.trim()) out.push(cur.trim());
+  return out;
+}
+function makeUtt(t){
+  const u = new SpeechSynthesisUtterance(t); const v = pickVoice(); if(v) u.voice = v;
+  u.lang = v ? v.lang : 'en-US'; u.rate = state.settings.rate || 1;
+  u.onerror = e => { if(e.error !== 'interrupted' && e.error !== 'canceled') diag('Ses hatası: ' + (e.error || '?')); };
+  return u;
+}
+// iOS drops an utterance queued right after cancel(), so cancel only when something is playing and wait briefly.
 function speak(text, force){
   if(!canTTS || !text || (!state.settings.tts && !force)) return;
-  try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); const v = pickVoice(); if(v) u.voice = v; u.lang = v ? v.lang : 'en-US'; u.rate = state.settings.rate || 1; speechSynthesis.speak(u); }catch{}
+  const synth = speechSynthesis, list = ttsChunks(text);
+  const play = () => { try{ synth.resume(); list.forEach((c, i) => { const u = makeUtt(c); if(i === 0){ u.onstart = () => diag('Ses çalmaya başladı'); } synth.speak(u); }); }catch(e){ diag('Ses çalınamadı: ' + e.message); } };
+  if(synth.speaking || synth.pending){ synth.cancel(); setTimeout(play, 150); } else play();
 }
-function stopSpeak(){ try{ canTTS && speechSynthesis.cancel(); }catch{} }
-function unlockTTS(){ try{ if(canTTS){ const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } }catch{} }
+function stopSpeak(){ try{ if(canTTS && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel(); }catch{} }
+// iOS only lets a page speak after it has spoken once inside a tap. Called from the start button.
+function unlockTTS(){ if(!canTTS || !state.settings.tts) return; try{ const u = makeUtt("Okay, let's begin."); u.onstart = () => diag('Ses kilidi açıldı'); speechSynthesis.speak(u); }catch{} }
 
 // ---------- speech recognition ----------
 // target: 'chat' | 'itep-prep' | 'itep-speak' | 'retry'
-const dict = { target:null, want:false, active:false, base:'', fin:'', interim:'', skip:0, lastLen:0, startAt:0, emptyRestarts:0, gotResult:false, stopWaiters:[], r:null };
+const dict = { target:null, want:false, active:false, base:'', fin:'', interim:'', skip:0, lastLen:0, startAt:0, segStart:0, activeMs:0, emptyRestarts:0, gotResult:false, heard:false, stopWaiters:[], r:null };
 function srText(){ return join(dict.base, dict.fin); }
 function srLive(){ return join(dict.base, dict.fin, dict.interim); }
 function srStart(target, keep){
   // must be called from a tap
   stopSpeak();
   dict.target = target; dict.want = true; dict.emptyRestarts = 0;
-  if(!keep){ dict.base = ''; dict.fin = ''; dict.interim = ''; dict.startAt = Date.now(); }
+  if(!keep){ dict.base = ''; dict.fin = ''; dict.interim = ''; dict.startAt = Date.now(); dict.activeMs = 0; }
+  dict.segStart = 0;
   return openRec();
 }
+const SR_MSG = {
+  'not-allowed': 'Mikrofon izni verilmedi. iPhone\'da Ayarlar > Uygulamalar > Safari > Mikrofon seçeneğini "Sor" veya "İzin Ver" yap, sonra sayfayı yeniden aç.',
+  'service-not-allowed': 'Konuşma tanıma kapalı. iPhone\'da Ayarlar > Genel > Klavye > Dikteyi Etkinleştir açık olmalı ve Ayarlar > Gizlilik ve Güvenlik > Konuşma Tanıma bölümünde Safari\'ye izin verilmeli.',
+  'audio-capture': 'Mikrofona erişilemedi. Başka bir uygulama mikrofonu kullanıyor olabilir.',
+  'network': 'Konuşma tanıma için internet gerekiyor.',
+  'language-not-supported': 'Bu cihazda İngilizce konuşma tanıma kullanılamıyor. Klavyenin dikte tuşunu kullanabilirsin.'
+};
+function segEnd(){ if(dict.segStart){ dict.activeMs += Date.now() - dict.segStart; dict.segStart = 0; } }
 function openRec(isRestart){
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   const r = new SR(); r.lang = 'en-US'; r.continuous = true; r.interimResults = true; r.maxAlternatives = 1;
-  dict.skip = 0; dict.lastLen = 0; dict.gotResult = false;
+  dict.skip = 0; dict.lastLen = 0; dict.gotResult = false; dict.heard = false;
+  r.onstart = () => diag('Mikrofon açıldı');
+  r.onaudiostart = () => diag('Ses alınıyor');
+  r.onspeechstart = () => { dict.heard = true; diag('Konuşma algılandı'); };
   r.onresult = e => {
     let f = '', i = '';
     for(let k = dict.skip; k < e.results.length; k++){ const res = e.results[k]; if(res.isFinal) f += ' ' + res[0].transcript; else i += ' ' + res[0].transcript; }
+    if(!dict.gotResult) diag('Metin geldi');
     dict.lastLen = e.results.length; dict.fin = f.trim(); dict.interim = i.trim(); dict.gotResult = true; dict.emptyRestarts = 0;
     srChanged();
   };
   r.onerror = e => {
-    dict.lastErr = e.error;
-    if(e.error === 'not-allowed' || e.error === 'service-not-allowed'){ dict.want = false; if(!isRestart) toast('Mikrofon veya konuşma tanıma izni yok. iPhone Ayarlar > Safari > Mikrofon ve Ayarlar > Gizlilik > Konuşma Tanıma bölümünü kontrol et. Yazarak da cevap verebilirsin.'); }
-    else if(e.error === 'network'){ toast('Konuşma tanıma için internet gerekiyor.'); }
+    dict.lastErr = e.error; diag('Mikrofon hatası: ' + e.error);
+    if(e.error === 'not-allowed' || e.error === 'service-not-allowed'){ dict.want = false; if(!isRestart) toast(SR_MSG[e.error]); }
+    else if(SR_MSG[e.error]){ dict.want = false; toast(SR_MSG[e.error]); }
   };
   r.onend = () => {
+    diag('Mikrofon kapandı');
     // iOS often finalises nothing before ending: keep interim text too
     dict.base = join(dict.base, dict.fin, dict.interim); dict.fin = ''; dict.interim = ''; dict.r = null;
     if(!dict.gotResult) dict.emptyRestarts++;
     const unexpected = dict.want;
-    if(dict.want && dict.emptyRestarts < 3){ try{ if(openRec(true)) return; }catch{} }
-    dict.want = false; dict.active = false;
+    // Safari on iPhone refuses to restart without a tap, so there the pause is shown to the user instead.
+    if(dict.want && !IS_IOS && dict.emptyRestarts < 3){ try{ if(openRec(true)) return; }catch{} }
+    segEnd(); dict.want = false; dict.active = false;
     const w = dict.stopWaiters; dict.stopWaiters = []; w.forEach(f => f());
     micUI();
     if(unexpected) srEndedOnItsOwn();
   };
-  try{ r.start(); }catch(e){ dict.active = false; dict.want = false; micUI(); if(!isRestart) toast('Mikrofon başlatılamadı.'); return false; }
-  dict.r = r; dict.active = true; micUI();
+  try{ r.start(); }catch(e){ diag('Mikrofon başlatılamadı: ' + e.message); dict.active = false; dict.want = false; micUI(); if(!isRestart) toast('Mikrofon başlatılamadı.'); return false; }
+  dict.r = r; dict.active = true; if(!dict.segStart) dict.segStart = Date.now(); micUI();
   return true;
 }
 function srStop(){
   return new Promise(res => {
-    if(!dict.active || !dict.r){ dict.want = false; dict.active = false; res(); return; }
+    if(!dict.active || !dict.r){ segEnd(); dict.want = false; dict.active = false; res(); return; }
     dict.want = false; dict.stopWaiters.push(res);
     try{ dict.r.stop(); }catch{}
-    setTimeout(() => { if(dict.active){ try{ dict.r && dict.r.abort(); }catch{} dict.base = join(dict.base, dict.fin, dict.interim); dict.fin = ''; dict.interim = ''; dict.active = false; dict.r = null; const w = dict.stopWaiters; dict.stopWaiters = []; w.forEach(f => f()); micUI(); } }, 1800);
+    setTimeout(() => { if(dict.active){ try{ dict.r && dict.r.abort(); }catch{} dict.base = join(dict.base, dict.fin, dict.interim); dict.fin = ''; dict.interim = ''; segEnd(); dict.active = false; dict.r = null; const w = dict.stopWaiters; dict.stopWaiters = []; w.forEach(f => f()); micUI(); } }, 1800);
   });
 }
 function srChanged(){
   if(dict.target === 'itep-prep') return;
   if((dict.target === 'chat' || dict.target === 'itep-speak') && state.sess){ state.sess.live = srLive(); updateLive(); }
   if(dict.target === 'retry') updateRetryLive();
+  if(dict.target === 'diag'){ const el = document.getElementById('diagLive'); if(el) el.textContent = srLive() || '…'; }
 }
 function srEndedOnItsOwn(){
-  if(dict.target === 'chat') finishChatUtterance();
+  if(dict.target === 'chat'){ if(state.sess){ state.sess.live = srLive(); } renderSession(); if(!srText()) toast(dict.heard ? 'Ses alındı ama metne çevrilemedi. Daha yakından ve net konuşup tekrar dene.' : 'Seni duyamadım. Mikrofona bas ve tekrar dene.'); }
+  else if(dict.target === 'diag'){ diagMicUI(); }
   else if(dict.target === 'itep-speak' || dict.target === 'itep-prep'){ if(state.view === 'session') renderSession(); }
   else if(dict.target === 'retry' && retry.idx != null){ const b = document.querySelector(`[data-retry="${retry.idx}"]`); finishRetry(b); }
+}
+function micHintText(){
+  const S = state.sess; if(!S) return '';
+  if(dict.active) return 'Dinliyorum. Bitirince tekrar bas, cevabın gönderilir.';
+  if(S.busy) return 'AI cevaplıyor…';
+  if(dict.target === 'chat' && srText()) return 'Mikrofon durdu. Devam etmek için mikrofona, bitirdiysen Gönder\'e bas.';
+  return 'Mikrofona bas ve konuş.';
 }
 function micUI(){
   const on = dict.active;
   const mic = $('#micBtn'); if(mic){ mic.classList.toggle('on', on); mic.setAttribute('aria-label', on ? 'Bitir ve gönder' : 'Konuşmaya başla'); mic.disabled = !on && !!(state.sess && state.sess.busy); }
-  const h = $('#micHint'); if(h && state.sess) h.textContent = on ? 'Dinliyorum. Bitirince tekrar bas, cevabın gönderilir.' : state.sess.busy ? 'AI cevaplıyor…' : 'Mikrofona bas ve konuş.';
+  const h = $('#micHint'); if(h && state.sess) h.textContent = micHintText();
   const ro = $('#micReopen'); if(ro) ro.hidden = on;
+  diagMicUI();
 }
+function diagMicUI(){ const b = document.getElementById('diagMic'); if(b) b.textContent = (dict.active && dict.target === 'diag') ? 'Testi bitir' : 'Mikrofonu test et'; }
 
 // ---------- chain stats ----------
 function minutesByDay(){ const m = {}; for(const s of state.sessions){ m[s.day] = (m[s.day] || 0) + (s.durationSec || 0)/60; } return m; }
@@ -623,6 +676,16 @@ function settingsHTML(){
     <label class="field" for="voiceSel">Ses <small>iPhone'da daha doğal sesler için Ayarlar > Erişilebilirlik > Seslendirilen İçerik > Sesler > İngilizce bölümünden "Gelişmiş" bir ses indirebilirsin.</small><select id="voiceSel"></select></label>
     <label class="field" for="rateIn">Konuşma hızı <span class="mono" id="rateVal">${(s.rate||1).toFixed(2)}×</span><input type="range" id="rateIn" min="0.7" max="1.3" step="0.05" value="${s.rate||1}"></label>
     <div class="row"><button class="btn" id="voiceTest">Sesi dinle</button></div>
+    <label class="toggle"><input type="checkbox" id="kbT" ${s.kbDictation?'checked':''}> Klavye diktesiyle konuşuyorum <small class="muted">(yazı kutusuna gelen metin konuşma sayılır, süresi ölçülür)</small></label>
+    <p class="muted" style="font-size:.84rem">Uygulamanın mikrofonu iPhone'da çalışmazsa: klavyeye İngilizce ekle (Ayarlar > Genel > Klavye > Klavyeler), yazı kutusuna dokun, dünya tuşuyla İngilizce klavyeye geç ve klavyedeki mikrofon tuşuyla konuş. Bu yöntem iPhone'da en güvenilir olanı.</p>
+  </div>
+  <div class="panel settings">
+    <h2>Ses ve hız testi</h2>
+    <p class="muted" style="font-size:.88rem">Bir sorun olursa buradaki testleri çalıştır ve kutunun ekran görüntüsünü paylaş.</p>
+    <div class="kv"><span>iPhone/iPad <b>${IS_IOS?'evet':'hayır'}</b></span><span>Ana ekrandan açık <b>${STANDALONE?'evet':'hayır'}</b></span><span>Konuşma tanıma <b>${canMic?'var':'yok'}</b></span><span>Sesli okuma <b>${canTTS?'var':'yok'}</b></span><span>İngilizce ses <b id="voiceCount">${voices.length}</b></span></div>
+    <div class="row"><button class="btn" id="diagMic" ${canMic?'':'disabled'}>Mikrofonu test et</button><button class="btn" id="diagTts">Sesi test et</button><button class="btn" id="diagSpeed" ${hasKey()?'':'disabled'}>Hız testi</button></div>
+    <div class="retry-out" id="diagLive">Mikrofon testinde söylediklerin burada görünür.</div>
+    <pre id="diagOut" class="mono" style="margin:0;max-height:220px;overflow:auto;font-size:.75rem;background:var(--sunk);border-radius:10px;padding:10px;white-space:pre-wrap">${esc(diagLog.join('\n')) || 'Henüz kayıt yok.'}</pre>
   </div>
   <div class="panel settings">
     <h2>Yedekleme</h2>
@@ -727,7 +790,7 @@ async function aiTurn(){
   for(const t of S.turns) msgs.push({role: t.role === 'ai' ? 'assistant' : 'user', content: t.text});
   while(JSON.stringify(msgs).length > 120000 && msgs.length > 4) msgs.splice(1, 2);
   try{
-    const text = (await callAI({system:S.instructions, messages:msgs, max_tokens:1024, onText: t => { S.streaming = t; updateStreaming(); }})).trim();
+    const text = (await callAI({system:S.instructions, messages:msgs, max_tokens:1024, think:'minimal', onText: t => { S.streaming = t; updateStreaming(); }})).trim();
     if(state.sess !== S) return;
     S.turns.push({role:'ai', text: text || '…'});
     if(!S.title && S.mode === 'free') S.title = text.split(/(?<=[?.!])\s/)[0].slice(0, 110);
@@ -735,21 +798,21 @@ async function aiTurn(){
     speak(text);
   }catch(e){ if(state.sess !== S) return; S.busy = false; S.streaming = ''; renderSession(); toast(apiErr(e)); }
 }
-async function finishChatUtterance(){
-  const S = state.sess; if(!S || dict.target !== 'chat') return;
-  const secs = (Date.now() - dict.startAt)/1000;
-  if(dict.active) await srStop();
-  const text = srText(); dict.target = null; dict.base = ''; S.live = '';
-  if(!text){ renderSession(); toast('Bir şey duyulmadı. Tekrar dene.'); return; }
-  S.turns.push({role:'me', text, secs:Math.round(secs), typed:false});
+async function sendAnswer(){
+  const S = state.sess; if(!S || S.busy) return;
+  const ta = $('#typedIn'); const typed = (ta ? ta.value : (S.typedDraft || '')).trim();
+  let spoken = '';
+  if(dict.target === 'chat'){ if(dict.active) await srStop(); spoken = srText(); }
+  const text = join(spoken, typed);
+  if(!text){ toast('Gönderilecek bir cevap yok.'); return; }
+  let secs = null, isTyped = !spoken;
+  if(spoken) secs = Math.max(1, Math.round(dict.activeMs / 1000));
+  else if(state.settings.kbDictation && S.typeStart){ secs = Math.max(1, Math.round((Date.now() - S.typeStart) / 1000)); isTyped = false; }
+  dict.target = null; dict.base = ''; dict.activeMs = 0; S.live = ''; S.typedDraft = ''; S.typeStart = 0; if(ta) ta.value = '';
+  S.turns.push({role:'me', text, secs, typed:isTyped, kb: isTyped ? false : !spoken});
   renderSession(); aiTurn();
 }
-function sendTyped(){
-  const S = state.sess, ta = $('#typedIn'); if(!S || !ta) return;
-  const text = ta.value.trim(); if(!text || S.busy) return;
-  S.turns.push({role:'me', text, typed:true}); ta.value = ''; S.typedDraft = '';
-  renderSession(); aiTurn();
-}
+const finishChatUtterance = sendAnswer, sendTyped = sendAnswer;
 
 // ---------- iTEP ----------
 const ITEP_PARTS = [{prep:30, speak:45, name:'Bölüm 1'}, {prep:45, speak:60, name:'Bölüm 2'}];
@@ -858,7 +921,7 @@ List every real error (up to 20), most important first. "original" must be copie
 }
 async function analyze(rec){
   try{
-    const a = await askJSON(analysisPrompt(rec), {max_tokens:8192});
+    const a = await askJSON(analysisPrompt(rec), {max_tokens:8192, think:'low'});
     if(!a || typeof a !== 'object') throw {code:'invalid_json'};
     a.errors = Array.isArray(a.errors) ? a.errors.filter(e=>e && e.original && e.correction) : [];
     a.upgrades = Array.isArray(a.upgrades) ? a.upgrades.filter(u=>u && u.original && u.better) : [];
@@ -877,15 +940,15 @@ function sessionHTML(){
   const head = `<div class="sess-head"><div><div class="eyebrow">${m.tag}</div><h2 style="margin-top:4px">${esc(S.title || m.label)}</h2></div>
     <div class="row"><span class="timer" id="clock">${fmtTime((Date.now()-S.startedAt)/1000)}</span><button class="btn danger" id="endBtn">Konuşmayı bitir</button></div></div>`;
   if(m.kind === 'itep') return `<div class="panel" style="display:flex;flex-direction:column;gap:20px">${head}${itepBody(S)}</div>`;
-  const feed = S.turns.map(t => `<div class="msg ${t.role==='ai'?'ai':'me'}">${esc(t.text)}${t.role==='ai'?'':`<span class="meta">${t.typed?'yazıldı':(t.secs?t.secs+' sn · ':'') + words(t.text)+' kelime'}</span>`}</div>`).join('');
+  const feed = S.turns.map(t => `<div class="msg ${t.role==='ai'?'ai':'me'}">${esc(t.text)}${t.role==='ai'?'':`<span class="meta">${t.typed?'yazıldı':(t.kb?'dikte · ':'') + (t.secs?t.secs+' sn · ':'') + words(t.text)+' kelime'}</span>`}</div>`).join('');
   const lastAI = [...S.turns].reverse().find(t => t.role === 'ai');
   const streaming = S.busy ? `<div class="msg ai" id="streamMsg">${S.streaming?esc(S.streaming):'<span class="spinner" aria-label="AI yazıyor"></span>'}</div>` : '';
   const live = `<div class="msg me live" id="liveMsg" ${S.live?'':'hidden'}>${esc(S.live)}</div>`;
   const controls = `<div class="controls">
     ${canMic ? `<button class="mic${dict.active?' on':''}" id="micBtn" aria-label="${dict.active?'Bitir ve gönder':'Konuşmaya başla'}" ${S.busy && !dict.active?'disabled':''}>${MIC_SVG}</button>
-      <p class="muted" style="font-size:.85rem" id="micHint">${dict.active?'Dinliyorum. Bitirince tekrar bas, cevabın gönderilir.':S.busy?'AI cevaplıyor…':'Mikrofona bas ve konuş.'}</p>` : ''}
-    ${lastAI && !S.busy ? `<button class="btn small" id="replayBtn">AI'ın son cevabını tekrar dinle</button>` : ''}
-    <div class="typed"><textarea id="typedIn" placeholder="${canMic?'Ya da cevabını yaz (yazılan cevaplar akıcılık ölçümüne girmez)':'Cevabını yaz'}" ${S.busy?'disabled':''}>${esc(S.typedDraft||'')}</textarea><button class="btn" id="sendTyped" ${S.busy?'disabled':''}>Gönder</button></div>
+      <p class="muted" style="font-size:.85rem;text-align:center" id="micHint">${micHintText()}</p>` : ''}
+    ${lastAI && !S.busy ? `<button class="btn small" id="replayBtn">🔊 AI'ın son cevabını dinle</button>` : ''}
+    <div class="typed"><textarea id="typedIn" placeholder="${state.settings.kbDictation ? 'Klavyedeki mikrofon tuşuyla konuş' : IS_IOS ? 'Ya da yaz veya klavyenin mikrofon tuşuyla dikte et' : canMic ? 'Ya da cevabını yaz (yazılan cevaplar akıcılık ölçümüne girmez)' : 'Cevabını yaz'}" ${S.busy?'disabled':''}>${esc(S.typedDraft||'')}</textarea><button class="btn primary" id="sendTyped" ${S.busy?'disabled':''}>Gönder</button></div>
   </div>`;
   return `<div class="panel" style="display:flex;flex-direction:column;gap:18px">${head}<div class="feed" id="feed">${feed}${streaming}${live}</div>${controls}</div>`;
 }
@@ -1041,9 +1104,11 @@ document.addEventListener('click', e => {
   }
   if(t.closest('#micBtn')){
     const S = state.sess; if(!S) return;
-    if(dict.target === 'chat' && dict.active){ finishChatUtterance(); return; }
+    if(dict.target === 'chat' && dict.active){ sendAnswer(); return; }
     if(S.busy) return;
-    S.live = ''; srStart('chat');
+    const resume = dict.target === 'chat' && !!srText();
+    if(!resume) S.live = '';
+    srStart('chat', resume);
     return;
   }
   if(t.closest('#micReopen')){ if(state.sess && state.sess.itep && state.sess.itep.phase === 'speak'){ dict.target = 'itep-speak'; srStart('itep-speak', true); } return; }
@@ -1082,7 +1147,7 @@ document.addEventListener('click', e => {
         let lastErr = {code:'http', status:404, message:'Hesapta uygun model yok'};
         for(const md of list.slice(0, 5)){
           step(label + ': ' + md + ' deneniyor…');
-          try{ await callModel(md, {messages:[{role:'user',content:'Reply with OK.'}], max_tokens:256}); return md; }
+          try{ await callModel(md, {messages:[{role:'user',content:'Reply with OK.'}], max_tokens:256, think:'minimal'}); return md; }
           catch(e){ lastErr = e; if(!(isTransient(e) || (e.code === 'http' && [404, 429, 403].includes(e.status)))) break; }
         }
         lastErr.step = label; throw lastErr;
@@ -1098,7 +1163,18 @@ document.addEventListener('click', e => {
       .catch(err => { const s2 = $('#keyStatus'); s2.className = 'bad-txt'; s2.textContent = (err.step ? err.step + ' başarısız. ' : '') + apiErr(err); });
     return;
   }
-  if(t.closest('#voiceTest')){ speak('Hi! This is how I will sound during our practice sessions.', true); return; }
+  if(t.closest('#voiceTest') || t.closest('#diagTts')){ diag('Ses testi: ' + (voices.length) + ' İngilizce ses, seçili: ' + (pickVoice()?.name || 'varsayılan')); speak('Hi! This is how I will sound during our practice sessions.', true); return; }
+  if(t.closest('#diagMic')){
+    if(dict.active && dict.target === 'diag'){ srStop().then(() => { diag('Test bitti. Duyulan: ' + (srText() || '(hiçbir şey)')); dict.target = null; diagMicUI(); }); return; }
+    if(dict.active){ toast('Önce diğer kaydı bitir.'); return; }
+    $('#diagLive').textContent = 'Dinliyorum… İngilizce bir cümle söyle.';
+    srStart('diag'); diagMicUI(); return;
+  }
+  if(t.closest('#diagSpeed')){
+    diag('Hız testi: ' + state.settings.model);
+    callAI({messages:[{role:'user', content:'Say one short friendly sentence.'}], max_tokens:200, think:'minimal'}).then(x => diag('Cevap: ' + x.trim().slice(0, 80))).catch(e => diag(apiErr(e)));
+    return;
+  }
   if(t.closest('#exportBtn')){ exportBackup(); return; }
   if(t.closest('#wipeBtn')){ $('#wipeBtn').hidden = true; $('#wipeConfirm').hidden = false; return; }
   if(t.closest('#wipeNo')){ $('#wipeBtn').hidden = false; $('#wipeConfirm').hidden = true; return; }
@@ -1108,10 +1184,11 @@ document.addEventListener('change', e => {
   const id = e.target.id;
   if(id === 'voiceSel'){ state.settings.voiceURI = e.target.value; saveSettings(); }
   else if(id === 'ttsT2'){ state.settings.tts = e.target.checked; saveSettings(); }
+  else if(id === 'kbT'){ state.settings.kbDictation = e.target.checked; saveSettings(); }
   else if(id === 'importIn' && e.target.files[0]){ importBackup(e.target.files[0]); e.target.value = ''; }
 });
 document.addEventListener('input', e => {
-  if(e.target.id === 'typedIn' && state.sess) state.sess.typedDraft = e.target.value;
+  if(e.target.id === 'typedIn' && state.sess){ state.sess.typedDraft = e.target.value; if(!state.sess.typeStart && e.target.value) state.sess.typeStart = Date.now(); }
   if(e.target.id === 'rateIn'){ state.settings.rate = +e.target.value; $('#rateVal').textContent = state.settings.rate.toFixed(2) + '×'; saveSettings(); }
 });
 document.addEventListener('keydown', e => {
