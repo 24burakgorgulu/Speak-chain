@@ -1,0 +1,17 @@
+{
+  "name": "Speak Chain",
+  "short_name": "Speak Chain",
+  "description": "Sesli İngilizce konuşma pratiği, hata analizi ve zinciri kırma takibi.",
+  "lang": "tr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0E1420",
+  "theme_color": "#142033",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
