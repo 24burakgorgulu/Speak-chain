@@ -261,10 +261,13 @@ const ERR_TR = {grammar:'Dilbilgisi',tense:'Zaman',article:'Article (a/the)',pre
 const SCORE_TR = {grammar:'Dilbilgisi',vocabulary:'Kelime',fluency:'Akıcılık',coherence:'Tutarlılık',task:'Göreve uygunluk'};
 
 // ---------- state + storage (this device only) ----------
-const DEFAULTS = {goalMin:10, tts:true, instant:false, apiKey:'', model:'claude-sonnet-5-5', quickModel:'claude-haiku-5-5', voiceURI:'', rate:1};
+const DEFAULTS = {goalMin:10, tts:true, instant:false, apiKey:'', model:'gemini-3.8-flash', quickModel:'gemini-3.5-flash-lite', voiceURI:'', rate:1};
+const MAIN_PREF = ['gemini-3.8-flash','gemini-3.6-flash','gemini-3.5-flash','gemini-3-flash-preview','gemini-3.1-pro-preview','gemini-4-argon','gemini-2.5-flash'];
+const QUICK_PREF = ['gemini-3.5-flash-lite','gemini-3.1-flash-lite','gemini-2.5-flash-lite'];
 const state = { view:'home', sessions:[], settings:{...DEFAULTS}, setup:null, sess:null, reportId:null };
 const LS_KEY = 'speakchain-v1';
-function load(){ try{ const s = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); if(s){ state.sessions = s.sessions || []; Object.assign(state.settings, s.settings || {}); } }catch{} }
+function load(){ try{ const s = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); if(s){ state.sessions = s.sessions || []; Object.assign(state.settings, s.settings || {}); } }catch{}
+  if(!/^gemini/i.test(state.settings.model || '')){ state.settings.model = DEFAULTS.model; state.settings.quickModel = DEFAULTS.quickModel; state.settings.apiKey = ''; } }
 function persist(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({sessions:state.sessions, settings:state.settings})); return true; }catch(e){ toast('Kayıt yapılamadı: cihaz depolaması dolu veya kapalı.'); return false; } }
 function saveSession(s){ const i = state.sessions.findIndex(x => x.id === s.id); if(i >= 0) state.sessions[i] = s; else state.sessions.unshift(s); persist(); }
 function deleteSession(id){ state.sessions = state.sessions.filter(x => x.id !== id); persist(); }
@@ -274,35 +277,92 @@ const canMic = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 const canTTS = 'speechSynthesis' in window;
 try{ navigator.storage && navigator.storage.persist && navigator.storage.persist(); }catch{}
 
-// ---------- Claude API ----------
-async function callClaude({system, messages, model, max_tokens = 600, onText}){
-  if(!hasKey()) throw {code:'no_key'};
+// ---------- Gemini API ----------
+const GEMINI = 'https://generativelanguage.googleapis.com/v1beta/';
+let thinkingSupported = true;   // switched off if the API rejects the thinking setting
+async function geminiFetch(path, body){
   let res;
   try{
-    res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'content-type':'application/json','x-api-key':state.settings.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({model: model || state.settings.model, max_tokens, ...(system ? {system} : {}), messages, stream: !!onText})
-    });
+    res = await fetch(GEMINI + path, { method: body ? 'POST' : 'GET', headers: {'content-type':'application/json','x-goog-api-key':state.settings.apiKey}, ...(body ? {body: JSON.stringify(body)} : {}) });
   }catch(e){ throw {code:'network'}; }
-  if(!res.ok){ let m = ''; try{ const j = await res.json(); m = j.error?.message || ''; }catch{} throw {code:'http', status:res.status, message:m}; }
-  if(!onText){ const j = await res.json(); return (j.content || []).filter(b => b.type === 'text').map(b => b.text).join(''); }
-  const reader = res.body.getReader(), dec = new TextDecoder(); let buf = '', text = '';
-  for(;;){
-    const {value, done} = await reader.read(); if(done) break;
-    buf += dec.decode(value, {stream:true});
-    let i;
-    while((i = buf.indexOf('\n\n')) >= 0){
-      const evt = buf.slice(0, i); buf = buf.slice(i + 2);
-      for(const line of evt.split('\n')){
-        if(!line.startsWith('data:')) continue;
-        let d; try{ d = JSON.parse(line.slice(5)); }catch{ continue; }
-        if(d.type === 'content_block_delta' && d.delta?.type === 'text_delta'){ text += d.delta.text; onText(text); }
-        else if(d.type === 'error') throw {code:'http', status:529, message:d.error?.message};
+  if(!res.ok){ let m = '', st = ''; try{ const j = await res.json(); m = j.error?.message || ''; st = j.error?.status || ''; }catch{} throw {code:'http', status:res.status, message:m, gstatus:st}; }
+  return res;
+}
+function partsText(cand){ return (cand?.content?.parts || []).filter(p => !p.thought && typeof p.text === 'string').map(p => p.text).join(''); }
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const isTransient = e => e && e.code === 'http' && (e.status >= 500 || e.status === 408);
+const modelSwap = {};   // model -> working substitute for the rest of this app session
+async function callModel(model, {system, messages, max_tokens, onText, json}){
+  const build = noThink => ({
+    contents: messages.map(m => ({role: m.role === 'assistant' ? 'model' : 'user', parts:[{text:m.content}]})),
+    ...(system ? {systemInstruction:{parts:[{text:system}]}} : {}),
+    generationConfig: { maxOutputTokens: max_tokens, ...(json ? {responseMimeType:'application/json'} : {}), ...(thinkingSupported && !noThink ? {thinkingConfig:{thinkingLevel:'low'}} : {}) }
+  });
+  const path = `models/${encodeURIComponent(model)}:${onText ? 'streamGenerateContent?alt=sse' : 'generateContent'}`;
+  let res, last;
+  for(let attempt = 0; attempt < 3; attempt++){
+    try{ res = await geminiFetch(path, build(attempt === 2)); break; }
+    catch(e){
+      e.model = model; last = e;
+      if(thinkingSupported && e.code === 'http' && e.status === 400 && /thinking/i.test(e.message || '')){ thinkingSupported = false; attempt--; continue; }
+      if(!isTransient(e) || attempt === 2) throw e;
+      await sleep(attempt === 0 ? 1200 : 3500);
+    }
+  }
+  if(!res) throw last;
+  let text = '', finish = '', block = '';
+  const take = d => { if(d.promptFeedback?.blockReason) block = d.promptFeedback.blockReason; const c = d.candidates?.[0]; if(c){ text += partsText(c); if(c.finishReason) finish = c.finishReason; } };
+  if(!onText){ take(await res.json()); }
+  else {
+    const reader = res.body.getReader(), dec = new TextDecoder(); let buf = '';
+    for(;;){
+      const {value, done} = await reader.read(); if(done) break;
+      buf += dec.decode(value, {stream:true}).replace(/\r/g, '');
+      let i;
+      while((i = buf.indexOf('\n\n')) >= 0){
+        const evt = buf.slice(0, i); buf = buf.slice(i + 2);
+        for(const line of evt.split('\n')){ if(!line.startsWith('data:')) continue; let d; try{ d = JSON.parse(line.slice(5)); }catch{ continue; } if(d.error) throw {code:'http', status:d.error.code || 500, message:d.error.message, gstatus:d.error.status, model}; take(d); onText(text); }
       }
     }
   }
+  if(!text.trim()){
+    if(block || finish === 'SAFETY' || finish === 'PROHIBITED_CONTENT') throw {code:'blocked', model};
+    if(finish === 'MAX_TOKENS') throw {code:'truncated', model};
+  }
   return text;
+}
+// Same-class models to fall back to when one is overloaded, missing or out of free quota.
+function alternatesFor(model){
+  const avail = state.settings.models || [];
+  const lite = /lite/i.test(model);
+  const pref = lite ? [...QUICK_PREF, ...MAIN_PREF] : [...MAIN_PREF, ...QUICK_PREF];
+  const extra = avail.filter(m => /flash/i.test(m) && !/image|tts|audio|live|embed|native/i.test(m));
+  return [...new Set([...pref.filter(m => avail.includes(m)), ...extra])].filter(m => m !== model).slice(0, 3);
+}
+async function callAI(opts){
+  if(!hasKey()) throw {code:'no_key'};
+  const want = (opts.model || state.settings.model).replace(/^models\//, '');
+  const first = modelSwap[want] || want;
+  const chain = [first, ...alternatesFor(first)];
+  let lastErr;
+  for(const m of chain){
+    try{ const t = await callModel(m, {max_tokens:1024, json:false, ...opts}); if(m !== want) modelSwap[want] = m; return t; }
+    catch(e){
+      lastErr = e;
+      if(!(isTransient(e) || (e.code === 'http' && (e.status === 404 || e.status === 429)))) throw e;
+    }
+  }
+  throw lastErr;
+}
+async function listModels(){
+  const out = []; let token = '';
+  for(let i = 0; i < 5; i++){
+    const res = await geminiFetch('models?pageSize=1000' + (token ? '&pageToken=' + encodeURIComponent(token) : ''));
+    const j = await res.json();
+    for(const m of (j.models || [])) if((m.supportedGenerationMethods || []).includes('generateContent')) out.push(m.name.replace(/^models\//, ''));
+    token = j.nextPageToken; if(!token) break;
+  }
+  return out;
 }
 function parseJSON(t){
   try{ return JSON.parse(t); }catch{}
@@ -311,23 +371,28 @@ function parseJSON(t){
   throw {code:'invalid_json'};
 }
 async function askJSON(prompt, {quick = false, max_tokens = 4000} = {}){
-  const t = await callClaude({messages:[{role:'user', content:prompt}], model: quick ? state.settings.quickModel : state.settings.model, max_tokens, system:'Reply with a single valid JSON value only. No prose, no markdown fences.'});
+  const t = await callAI({messages:[{role:'user', content:prompt}], model: quick ? state.settings.quickModel : state.settings.model, max_tokens, json:true, system:'Reply with a single valid JSON value only. No prose, no markdown fences.'});
   return parseJSON(t);
 }
 function apiErr(e){
   if(!e) return 'Bilinmeyen hata.';
-  if(e.code === 'no_key') return 'Önce Ayarlar\'dan Anthropic API anahtarını gir.';
-  if(e.code === 'network') return 'Claude\'a ulaşılamadı. İnternet bağlantını kontrol et.';
-  if(e.code === 'invalid_json') return 'Analiz yanıtı okunamadı. Tekrar dene.';
+  const where = e.model ? ' [' + e.model + ']' : '';
+  if(e.code === 'no_key') return 'Önce Ayarlar\'dan Gemini API anahtarını gir.';
+  if(e.code === 'network') return 'Gemini\'ye ulaşılamadı. İnternet bağlantını kontrol et.';
+  if(e.code === 'invalid_json') return 'Yanıt okunamadı. Tekrar dene.';
+  if(e.code === 'blocked') return 'Gemini bu isteği güvenlik filtresi nedeniyle yanıtlamadı. Farklı bir konuyla dene.';
+  if(e.code === 'truncated') return 'Yanıt uzunluk sınırında kesildi. Tekrar dene.';
   if(e.code === 'http'){
-    if(e.status === 401) return 'API anahtarı geçersiz. Ayarlar\'dan kontrol et.';
-    if(e.status === 403) return 'Bu API anahtarının yetkisi yok.';
-    if(e.status === 404) return 'Model bulunamadı. Ayarlar\'daki model adını kontrol et.' + (e.message ? ' (' + e.message + ')' : '');
-    if(e.status === 429) return 'İstek sınırına ulaşıldı. Biraz bekleyip tekrar dene.';
-    if(e.status === 529 || e.status >= 500) return 'Claude şu an yoğun. Biraz sonra tekrar dene.';
-    return 'Claude hatası (' + e.status + ')' + (e.message ? ': ' + e.message : '');
+    const m = (e.message || '').slice(0, 220);
+    const detail = ' (Kod ' + e.status + (e.gstatus ? ' ' + e.gstatus : '') + where + (m ? ': ' + m : '') + ')';
+    if(e.status === 400 && /api key/i.test(m)) return 'API anahtarı geçersiz. Ayarlar\'dan kontrol et.' + detail;
+    if(e.status === 401 || e.status === 403) return 'Bu API anahtarının yetkisi yok.' + detail;
+    if(e.status === 404) return 'Model bulunamadı.' + detail;
+    if(e.status === 429) return 'Kullanım sınırına ulaşıldı (ücretsiz kota dolmuş olabilir). Biraz bekleyip tekrar dene.' + detail;
+    if(e.status >= 500) return 'Google tarafında bir sorun var, birkaç deneme de başarısız oldu.' + detail;
+    return 'Gemini hatası.' + detail;
   }
-  return e.message || 'Bilinmeyen hata.';
+  return (e.message || 'Bilinmeyen hata.') + where;
 }
 
 // ---------- speech synthesis ----------
@@ -467,7 +532,7 @@ function chainMessage(st){
 // ---------- views ----------
 function renderNotes(){
   const n = [];
-  if(!hasKey()) n.push('<div class="note warn">Claude\'a bağlanmak için API anahtarı gerekiyor. <button class="btn small" data-go2="settings">Ayarlar\'a git</button></div>');
+  if(!hasKey()) n.push('<div class="note warn">AI ile konuşmak için Gemini API anahtarı gerekiyor. <button class="btn small" data-go2="settings">Ayarlar\'a git</button></div>');
   if(!canMic) n.push('<div class="note">Bu tarayıcıda sesli giriş yok. iPhone\'da Safari kullan. Cevaplarını yazarak da verebilirsin.</div>');
   $('#notes').innerHTML = n.join('');
 }
@@ -542,12 +607,15 @@ function settingsHTML(){
   const s = state.settings;
   return `<div class="wrap" style="gap:16px">
   <div class="panel settings">
-    <h2>Claude bağlantısı</h2>
-    <label class="field" for="keyIn">Anthropic API anahtarı <small>console.anthropic.com adresinden alınır. Anahtar yalnızca bu cihazda saklanır.</small>
-      <div class="keyrow"><input type="password" id="keyIn" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(s.apiKey)}" placeholder="sk-ant-..."><button class="btn" id="keyToggle">Göster</button></div></label>
+    <h2>Gemini bağlantısı</h2>
+    <label class="field" for="keyIn">Gemini API anahtarı <small>aistudio.google.com/apikey adresinden alınır. Anahtar yalnızca bu cihazda saklanır.</small>
+      <div class="keyrow"><input type="password" id="keyIn" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(s.apiKey)}" placeholder="AIza..."><button class="btn" id="keyToggle">Göster</button></div></label>
     <div class="row"><button class="btn primary" id="keySave">Kaydet ve test et</button><span id="keyStatus" style="font-size:.88rem"></span></div>
-    <label class="field" for="modelIn">Konuşma ve analiz modeli<input type="text" id="modelIn" value="${esc(s.model)}" autocapitalize="off" spellcheck="false"></label>
-    <label class="field" for="qmodelIn">Hızlı işler için model <small>soru üretme ve tekrar kontrolü</small><input type="text" id="qmodelIn" value="${esc(s.quickModel)}" autocapitalize="off" spellcheck="false"></label>
+    <p class="muted" style="font-size:.84rem">Test, hesabında açık olan modelleri Google'dan çeker. Aşağıdaki model hesabında yoksa uygun olanı kendisi seçer.</p>
+    <label class="field" for="modelIn">Konuşma ve analiz modeli<input type="text" id="modelIn" list="modelList" value="${esc(s.model)}" autocapitalize="off" spellcheck="false"></label>
+    <label class="field" for="qmodelIn">Hızlı işler için model <small>soru üretme ve tekrar kontrolü</small><input type="text" id="qmodelIn" list="modelList" value="${esc(s.quickModel)}" autocapitalize="off" spellcheck="false"></label>
+    <datalist id="modelList">${(state.models||state.settings.models||[]).map(m=>`<option value="${esc(m)}">`).join('')}</datalist>
+    <p class="muted" style="font-size:.84rem">Ücretsiz kullanımda Google, gönderilen içeriği ürünlerini geliştirmek için kullanabilir. Konuşma transkriptlerin de buna dahil. Paylaşmak istemediğin kişisel bilgileri konuşmalarda söyleme.</p>
   </div>
   <div class="panel settings">
     <h2>Ses</h2>
@@ -659,7 +727,7 @@ async function aiTurn(){
   for(const t of S.turns) msgs.push({role: t.role === 'ai' ? 'assistant' : 'user', content: t.text});
   while(JSON.stringify(msgs).length > 120000 && msgs.length > 4) msgs.splice(1, 2);
   try{
-    const text = (await callClaude({system:S.instructions, messages:msgs, max_tokens:500, onText: t => { S.streaming = t; updateStreaming(); }})).trim();
+    const text = (await callAI({system:S.instructions, messages:msgs, max_tokens:1024, onText: t => { S.streaming = t; updateStreaming(); }})).trim();
     if(state.sess !== S) return;
     S.turns.push({role:'ai', text: text || '…'});
     if(!S.title && S.mode === 'free') S.title = text.split(/(?<=[?.!])\s/)[0].slice(0, 110);
@@ -693,7 +761,7 @@ async function prepareItep(){
 part1: one short, low-intermediate personal question answerable in 45 seconds (e.g. about habits, preferences, experiences).
 part2_statement: 2-3 sentences presenting two opposing sides of a societal or academic issue at upper level.
 part2_question: asks the examinee which side they agree with and why.
-Vary the topic. Random seed: ${Math.random().toString(36).slice(2,8)}.${avoid.length?` Avoid topics similar to: ${avoid.join(' | ')}.`:''}`, {quick:true, max_tokens:600});
+Vary the topic. Random seed: ${Math.random().toString(36).slice(2,8)}.${avoid.length?` Avoid topics similar to: ${avoid.join(' | ')}.`:''}`, {quick:true, max_tokens:1024});
     if(!q || !q.part1 || !q.part2_statement) throw {message:'Soru üretilemedi.'};
     S.itep = { qs:[q.part1, q.part2_statement + '\n\n' + (q.part2_question||'Which view do you agree with, and why?')], part:0, phase:'ready', left:0 };
     S.title = 'iTEP: ' + q.part1.slice(0, 90);
@@ -790,7 +858,7 @@ List every real error (up to 20), most important first. "original" must be copie
 }
 async function analyze(rec){
   try{
-    const a = await askJSON(analysisPrompt(rec), {max_tokens:5000});
+    const a = await askJSON(analysisPrompt(rec), {max_tokens:8192});
     if(!a || typeof a !== 'object') throw {code:'invalid_json'};
     a.errors = Array.isArray(a.errors) ? a.errors.filter(e=>e && e.original && e.correction) : [];
     a.upgrades = Array.isArray(a.upgrades) ? a.upgrades.filter(u=>u && u.original && u.better) : [];
@@ -920,7 +988,7 @@ async function checkRetry(e, said, out){
   if(!said){ out.textContent = 'Bir şey duyulmadı.'; return; }
   out.innerHTML = '<span class="spinner"></span>';
   try{
-    const r = await askJSON(`A learner made this error: "${e.original}" (correct form: "${e.correction}"; reason: ${e.explanation_tr}). They now said (speech-to-text, ignore punctuation): "${said}". Did they fix this specific error? Reply with only JSON: {"fixed":true|false,"feedback_tr":"one short sentence in Turkish"}`, {quick:true, max_tokens:300});
+    const r = await askJSON(`A learner made this error: "${e.original}" (correct form: "${e.correction}"; reason: ${e.explanation_tr}). They now said (speech-to-text, ignore punctuation): "${said}". Did they fix this specific error? Reply with only JSON: {"fixed":true|false,"feedback_tr":"one short sentence in Turkish"}`, {quick:true, max_tokens:512});
     out.innerHTML = `<b style="color:${r.fixed?'var(--ok)':'var(--danger)'}">${r.fixed?'Doğru':'Henüz değil'}</b> · “${esc(said)}”<br>${esc(r.feedback_tr||'')}`;
   }catch(err){ out.textContent = apiErr(err); }
 }
@@ -998,13 +1066,36 @@ document.addEventListener('click', e => {
   if(t.closest('#keyToggle')){ const k = $('#keyIn'); k.type = k.type === 'password' ? 'text' : 'password'; t.closest('#keyToggle').textContent = k.type === 'password' ? 'Göster' : 'Gizle'; return; }
   if(t.closest('#keySave')){
     state.settings.apiKey = $('#keyIn').value.trim();
-    state.settings.model = $('#modelIn').value.trim() || DEFAULTS.model;
-    state.settings.quickModel = $('#qmodelIn').value.trim() || DEFAULTS.quickModel;
+    state.settings.model = $('#modelIn').value.trim().replace(/^models\//,'') || DEFAULTS.model;
+    state.settings.quickModel = $('#qmodelIn').value.trim().replace(/^models\//,'') || DEFAULTS.quickModel;
     saveSettings(); renderNotes();
     const st = $('#keyStatus'); st.className = ''; st.innerHTML = '<span class="spinner"></span>';
-    Promise.all([state.settings.model, state.settings.quickModel].map(md => callClaude({messages:[{role:'user',content:'Reply with OK.'}], model:md, max_tokens:5})))
-      .then(() => { st.className = 'ok-txt'; st.textContent = 'Bağlantı çalışıyor.'; })
-      .catch(err => { st.className = 'bad-txt'; st.textContent = apiErr(err); });
+    (async () => {
+      const step = (txt) => { const s2 = $('#keyStatus'); if(s2) s2.innerHTML = '<span class="spinner"></span> ' + esc(txt); };
+      step('Anahtar kontrol ediliyor…');
+      let avail;
+      try{ avail = await listModels(); }catch(e){ e.step = 'Anahtar kontrolü'; throw e; }
+      state.models = avail; state.settings.models = avail;
+      const usable = avail.filter(m => !/image|tts|audio|live|embed|native|robotics|computer/i.test(m));
+      const order = (cur, pref) => [...new Set([cur, ...pref, ...usable.filter(m => /flash/i.test(m)), ...usable])].filter(m => avail.includes(m));
+      const tryList = async (list, label) => {
+        let lastErr = {code:'http', status:404, message:'Hesapta uygun model yok'};
+        for(const md of list.slice(0, 5)){
+          step(label + ': ' + md + ' deneniyor…');
+          try{ await callModel(md, {messages:[{role:'user',content:'Reply with OK.'}], max_tokens:256}); return md; }
+          catch(e){ lastErr = e; if(!(isTransient(e) || (e.code === 'http' && [404, 429, 403].includes(e.status)))) break; }
+        }
+        lastErr.step = label; throw lastErr;
+      };
+      const main = await tryList(order(state.settings.model, MAIN_PREF), 'Konuşma modeli');
+      const quickList = order(state.settings.quickModel, QUICK_PREF);
+      const quick = quickList.length ? await tryList(quickList, 'Hızlı model').catch(() => main) : main;
+      state.settings.model = main; state.settings.quickModel = quick; saveSettings();
+      for(const k in modelSwap) delete modelSwap[k];
+      return {main, quick};
+    })()
+      .then(({main, quick}) => { render(); const s2 = $('#keyStatus'); s2.className = 'ok-txt'; s2.textContent = 'Bağlantı çalışıyor. Konuşma: ' + main + ', hızlı işler: ' + quick + '.'; })
+      .catch(err => { const s2 = $('#keyStatus'); s2.className = 'bad-txt'; s2.textContent = (err.step ? err.step + ' başarısız. ' : '') + apiErr(err); });
     return;
   }
   if(t.closest('#voiceTest')){ speak('Hi! This is how I will sound during our practice sessions.', true); return; }

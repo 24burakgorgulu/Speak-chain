@@ -1,7 +1,7 @@
 // Speak Chain service worker: keeps the app shell available offline.
 // Network-first for the app's own files so updates arrive as soon as you are online.
-// Requests to other sites (Claude API, fonts) are not touched.
-const CACHE = 'speak-chain-v1';
+// Requests to other sites (Gemini API, fonts) are not touched.
+const CACHE = 'speak-chain-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-180.png', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {
