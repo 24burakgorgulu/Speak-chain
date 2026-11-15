@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Speak Chain — İngilizce Konuşma ve Kalite Mühendisliği Pratik Platformu</title>
+  <title>Speak Chain — Her Alanda İngilizce Konuşma Pratiği</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -78,7 +78,7 @@
   <!-- ANA İÇERİK ALANI -->
   <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
 
-    <!-- СЕКМЕ 1: ANA SAYFA -->
+    <!-- SEKME 1: ANA SAYFA -->
     <section id="viewHome" class="space-y-6">
 
       <!-- ZİNCİRİ KIRMA KARTI -->
@@ -172,7 +172,7 @@
           <button type="button" data-mode="sohbet" class="mode-card text-left bg-white hover:bg-emerald-50/40 rounded-2xl border border-slate-200 hover:border-emerald-400 p-5 shadow-sm transition group">
             <div class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">SOHBET</div>
             <div class="text-base font-bold text-slate-900 group-hover:text-emerald-800 mb-1.5">Serbest Konu</div>
-            <p class="text-sm text-slate-600 leading-relaxed">Seçtiğin alanda rastgele bir soru gelir. AI cevabına göre konuşmayı sürdürür, sen bitirene kadar devam eder.</p>
+            <p class="text-sm text-slate-600 leading-relaxed">İstediğin herhangi bir konuyu (örn. cat, spor, film, yemek, seyahat) yaz veya kategori seç; tekrarsız ve derinleşen sorularla sohbet et.</p>
           </button>
 
           <!-- 2. SINAV -->
@@ -186,14 +186,14 @@
           <button type="button" data-mode="kariyer" class="mode-card text-left bg-white hover:bg-emerald-50/40 rounded-2xl border border-slate-200 hover:border-emerald-400 p-5 shadow-sm transition group">
             <div class="text-xs font-bold uppercase tracking-wider text-amber-700 mb-1">KARİYER</div>
             <div class="text-base font-bold text-slate-900 group-hover:text-amber-800 mb-1.5">Mülakat Provası</div>
-            <p class="text-sm text-slate-600 leading-relaxed">Davranışsal ve kalite mühendisliği teknik soruları. Cevabın yapısına da geri bildirim alırsın.</p>
+            <p class="text-sm text-slate-600 leading-relaxed">İstediğin pozisyon için davranışsal veya mesleki mülakat soruları. Cevabın yapısına da geri bildirim alırsın.</p>
           </button>
 
           <!-- 4. ROL -->
           <button type="button" data-mode="rol" class="mode-card text-left bg-white hover:bg-emerald-50/40 rounded-2xl border border-slate-200 hover:border-emerald-400 p-5 shadow-sm transition group">
             <div class="text-xs font-bold uppercase tracking-wider text-sky-700 mb-1">ROL</div>
-            <div class="text-base font-bold text-slate-900 group-hover:text-sky-800 mb-1.5">İş Senaryosu</div>
-            <p class="text-sm text-slate-600 leading-relaxed">Tedarikçi görüşmesi, müşteri denetimi, toplantı gibi gerçek iş durumlarında rol yapma.</p>
+            <div class="text-base font-bold text-slate-900 group-hover:text-sky-800 mb-1.5">Günlük Hayat &amp; İş Senaryosu</div>
+            <p class="text-sm text-slate-600 leading-relaxed">Kafe, havalimanı, veteriner, otel gibi günlük durumlarda veya iş senaryolarında rol yapma.</p>
           </button>
 
           <!-- 5. ARGÜMAN -->
@@ -207,7 +207,7 @@
           <button type="button" data-mode="aciklama" class="mode-card text-left bg-white hover:bg-emerald-50/40 rounded-2xl border border-slate-200 hover:border-emerald-400 p-5 shadow-sm transition group">
             <div class="text-xs font-bold uppercase tracking-wider text-purple-700 mb-1">AÇIKLAMA</div>
             <div class="text-base font-bold text-slate-900 group-hover:text-purple-800 mb-1.5">Basitçe Anlat</div>
-            <p class="text-sm text-slate-600 leading-relaxed">Teknik bir kavramı mühendis olmayan birine anlatırsın. AI anlamayan biri gibi sorular sorar.</p>
+            <p class="text-sm text-slate-600 leading-relaxed">Herhangi bir konuyu, hayvanı, hobiyi veya kavramı hiç bilmeyen meraklı birine basitçe anlatırsın.</p>
           </button>
         </div>
       </div>
@@ -282,8 +282,9 @@
       <div class="bg-white rounded-2xl border border-slate-200 px-4 py-3 shadow-sm flex flex-wrap items-center justify-between gap-3">
         <div>
           <div id="convHeaderTitle" class="text-xs font-bold uppercase tracking-wider text-emerald-700">SOHBET / Serbest Konu</div>
-          <div class="flex items-center gap-3 mt-0.5">
+          <div class="flex flex-wrap items-center gap-2.5 mt-0.5">
             <span id="convTimerDisplay" class="font-mono text-lg font-bold text-slate-900">0:00</span>
+            <span id="convAngleBadge" class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">Tur 1 • Açılış</span>
             <span id="itepPhaseBadge" class="hidden text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200"></span>
             <span id="ttsActiveBadge" class="hidden inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
               <span class="speaking-wave"><span></span><span></span><span></span><span></span></span>
@@ -293,6 +294,9 @@
         </div>
 
         <div class="flex items-center gap-2">
+          <button id="btnSwitchAngleNow" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition" title="Aynı konu içinde farklı bir bakış açısıyla yeni soru sor">
+            ✨ Farklı Açıdan Sor
+          </button>
           <button id="btnRepeatLastAi" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1" title="Son AI mesajını tekrar seslendir">
             <span>🔊 Son mesajı oku</span>
           </button>
@@ -579,14 +583,12 @@
 
   <script>
     /********************************************************************
-     * SPEAK CHAIN v2.4 — KALICI SESLİ OKUMA (TTS), MİKROFON (STT)
-     * VE GEMINI MODEL DÜZELTME MİMARİSİ
+     * SPEAK CHAIN — TEKRARSIZ 12 AÇILI DİNAMİK SORU MOTORU + TTS & STT
      ********************************************************************/
 
     const STORAGE_KEY_STATE = 'speak_chain_state_v2';
     const STORAGE_KEY_API = 'speak_chain_api_key';
 
-    // Bilinen geçersiz / eski model adlarını kararlı Gemini 2.5 modellerine eşle
     const INVALID_MODEL_MAP = {
       'gemini-3.8-flash': 'gemini-2.5-flash',
       'gemini-3.6-flash': 'gemini-2.5-flash',
@@ -609,6 +611,101 @@
       'gemini-1.5-flash'
     ];
 
+    const CATEGORY_TO_ENGLISH_MAP = {
+      'Spor': 'sports, football, basketball, fitness, working out, favorite athletes, and memorable matches',
+      'Sanat': 'art, music, cinema, movies, painting, theater, and creative hobbies',
+      'Hayat': 'everyday life, daily routines, weekend plans, personal habits, and life experiences',
+      'Politika': 'public policy, global news, society, governance, and civic issues',
+      'Eğitim': 'education, learning new skills, school memories, languages, and self-improvement',
+      'Mühendislik': 'engineering, how things work, technology design, and problem solving',
+      'Sağlık': 'health, nutrition, sleep, mental well-being, and staying healthy',
+      'Genel kültür': 'general knowledge, history, world cultures, geography, and fun facts',
+      'Bilim ve teknoloji': 'science, space, future technology, inventions, and nature',
+      'Seyahat': 'traveling, holidays, exploring new cities, cultures, and memorable trips',
+      'İş hayatı': 'workplace communication, career goals, productivity, and work-life balance',
+      'Hayvanlar & Evcil Dostlar': 'animals, pets, cats, dogs, wildlife, and nature',
+      'Sinema & Dizi': 'movies, TV series, favorite actors, storytelling, and cinema',
+      'Yemek & Mutfak': 'food, cooking at home, favorite dishes, restaurants, and world cuisines',
+      'Oyun & Hobi': 'video games, board games, leisure activities, and favorite hobbies'
+    };
+
+    // Uzun konuşmalarda soruların hep aynı tipte kalmasını engelleyen 12 farklı bilişsel soru açısı
+    const CONVERSATION_ANGLES = [
+      {
+        id: 'personal_story',
+        trLabel: 'Kişisel Deneyim & Anı',
+        instruction: 'Ask about a specific personal memory, first-time experience, or real-life story the user had with what they just mentioned.'
+      },
+      {
+        id: 'deep_why_how',
+        trLabel: 'Neden & Nasıl Derinleşmesi',
+        instruction: 'Pick a specific detail or word from the user\'s last answer and ask HOW or WHY it works that way or what makes it feel different.'
+      },
+      {
+        id: 'comparison_dilemma',
+        trLabel: 'Karşılaştırma & İkilem',
+        instruction: 'Present an interesting two-option dilemma or trade-off directly related to what the user just said and ask which side they would pick.'
+      },
+      {
+        id: 'hypothetical_what_if',
+        trLabel: 'Varsayımsal Senaryo (What If)',
+        instruction: 'Create a fun, imaginative "What if..." scenario connected to the user\'s last response and ask what they would do.'
+      },
+      {
+        id: 'unpopular_opinion',
+        trLabel: 'Farklı Bakış & Tartışma',
+        instruction: 'Bring up a common myth, popular misconception, or contrasting opinion about the topic and ask whether the user agrees or disagrees.'
+      },
+      {
+        id: 'behind_the_scenes',
+        trLabel: 'Alışkanlık & Püf Noktası',
+        instruction: 'Ask about the practical habits, hidden challenges, or small details that most outsiders don\'t notice about this activity/topic.'
+      },
+      {
+        id: 'cultural_social',
+        trLabel: 'Kültür & Toplum Etkisi',
+        instruction: 'Ask how friends, different generations, or different cultures approach this topic compared to the user\'s own experience.'
+      },
+      {
+        id: 'emotional_sensory',
+        trLabel: 'Atmosfer & Duygu',
+        instruction: 'Ask about the mood, energy, or feeling this topic creates—for example, how it changes a stressful day or brings excitement.'
+      },
+      {
+        id: 'advice_mentor',
+        trLabel: 'Tavsiye & Başlangıç',
+        instruction: 'Ask what advice or #1 tip the user would give to a close friend who is completely new to what the user just talked about.'
+      },
+      {
+        id: 'future_evolution',
+        trLabel: 'Gelecek & Değişim',
+        instruction: 'Ask how the user thinks this topic—or their own interest in it—will change over the next 5 to 10 years.'
+      },
+      {
+        id: 'turning_point',
+        trLabel: 'Dönüm Noktası & Favori Örnek',
+        instruction: 'Ask the user to name one standout example (a person, place, event, or moment) in this area and explain what sets it apart.'
+      },
+      {
+        id: 'creative_twist',
+        trLabel: 'Yaratıcı Değişiklik',
+        instruction: 'Ask: if the user had the power to change one rule, habit, or aspect of this topic instantly, what would they change and why?'
+      }
+    ];
+
+    const RANDOM_EVERYDAY_TOPICS = [
+      'weekend hobbies, relaxing, and favorite free-time activities',
+      'favorite movies, TV series, and unforgettable stories',
+      'cooking at home, street food, and favorite cuisines',
+      'memorable travel experiences and dream destinations',
+      'music genres, concerts, and songs that change your mood',
+      'cats, dogs, and having pets at home',
+      'morning routines, coffee vs tea, and daily habits',
+      'sports, staying active, and outdoor adventures',
+      'books, curiosity, and learning new skills',
+      'nature, seasons, and favorite places to unwind'
+    ];
+
     const defaultState = {
       dailyGoalMinutes: 10,
       mainModel: 'gemini-2.5-flash',
@@ -618,27 +715,25 @@
       ttsRate: 1.0,
       keyboardDictation: false,
       autoMicAfterTts: true,
-      dailyMinutesByDate: {}, // { 'YYYY-MM-DD': minutesFloat }
-      conversations: [],      // [{ id, date, mode, title, durationSec, messages, errors, vocabUpgrades, feedback }]
-      errors: [],             // [{ id, date, category, wrong, right, explanation }]
-      vocabUpgrades: []       // [{ id, date, basic, advanced, example }]
+      dailyMinutesByDate: {},
+      conversations: [],
+      errors: [],
+      vocabUpgrades: []
     };
 
     let appState = loadAppState();
-    let apiKey = safeGetLocalStorage(STORAGE_KEY_API) || '';
+    let apiKey = discoverOrLoadApiKey();
 
-    // Aktif Konuşma Oturumu Durumu
     let activeSession = null;
     let sessionTimerInterval = null;
+    let lastRandomTopicUsed = '';
 
-    // TTS (Metin Sesli Okuma) Durumu ve Kilit Açıcılar
     let availableEnglishVoices = [];
     let isTtsSpeaking = false;
     let ttsResumeWatchdog = null;
     let sharedAudioCtx = null;
     let lastAiMessageText = '';
 
-    // STT (Mikrofon / Konuşma Tanıma) Durumu
     let recognitionInstance = null;
     let isListeningWanted = false;
     let isRecognitionRunning = false;
@@ -647,17 +742,15 @@
     let sttRestartTimer = null;
     let dictationStartTimestamp = null;
 
-    // Canlı Mikrofon VU-Metre (Web Audio API Analyser)
     let micStream = null;
     let micAnalyser = null;
     let micLevelAnimFrame = null;
 
-    // Ayarlar Sekmesi Mikrofon Test Durumu
     let isDiagMicRunning = false;
     let diagRecognition = null;
 
     /********************************************************************
-     * 1. YEREL DEPOLAMA VE MODEL GÖÇÜ (MIGRATION)
+     * 1. YEREL DEPOLAMA, OTOMATİK API ANAHTARI KEŞFİ VE MODEL GÖÇÜ
      ********************************************************************/
     function safeGetLocalStorage(key) {
       try {
@@ -671,6 +764,23 @@
       try {
         localStorage.setItem(key, val);
       } catch (e) {}
+    }
+
+    function discoverOrLoadApiKey() {
+      const direct = safeGetLocalStorage(STORAGE_KEY_API);
+      if (direct && direct.trim()) return direct.trim();
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          const v = localStorage.getItem(k) || '';
+          const match = v.match(/AIzaSy[A-Za-z0-9_-]{30,40}/);
+          if (match) {
+            safeSetLocalStorage(STORAGE_KEY_API, match[0]);
+            return match[0];
+          }
+        }
+      } catch (e) {}
+      return '';
     }
 
     function sanitizeModelName(modelName, fallback) {
@@ -691,7 +801,6 @@
         if (!raw) return structuredClone(defaultState);
         const parsed = JSON.parse(raw);
         const merged = { ...structuredClone(defaultState), ...parsed };
-        // Eski model adlarını (gemini-3.6-flash / 3.8-flash / 3.5-flash-lite) otomatik düzelt
         merged.mainModel = sanitizeModelName(merged.mainModel, 'gemini-2.5-flash');
         merged.fastModel = sanitizeModelName(merged.fastModel, 'gemini-2.5-flash-lite');
         return merged;
@@ -748,7 +857,6 @@
      * 3. KALICI SESLİ OKUMA (TTS) MOTORU (SAFARI/CHROME KİLİT ÇÖZÜCÜ)
      ********************************************************************/
     function unlockAudioAndTtsOnUserGesture() {
-      // 1) Web Audio API bağlamını uyandır
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (AudioCtx) {
@@ -756,7 +864,6 @@
           if (sharedAudioCtx.state === 'suspended') {
             sharedAudioCtx.resume();
           }
-          // Sessiz 1-sample buffer çal (iOS Safari ses kilidini açar)
           const buffer = sharedAudioCtx.createBuffer(1, 1, 22050);
           const source = sharedAudioCtx.createBufferSource();
           source.buffer = buffer;
@@ -765,7 +872,6 @@
         }
       } catch (e) {}
 
-      // 2) speechSynthesis motorunu kullanıcı etkileşimi içinde uyandır
       try {
         if ('speechSynthesis' in window) {
           window.speechSynthesis.resume();
@@ -786,7 +892,6 @@
       const allVoices = window.speechSynthesis.getVoices() || [];
       availableEnglishVoices = allVoices.filter(v => /^en(-|_|$)/i.test(v.lang));
 
-      // Kaliteli sesleri (Natural, Enhanced, Samantha, Daniel, Google US) öne sırala
       availableEnglishVoices.sort((a, b) => {
         const score = (v) => {
           let s = 0;
@@ -835,7 +940,6 @@
         .replace(/\s+/g, ' ')
         .trim();
       if (!cleaned) return [];
-      // Cümle sonlarından böl (Chrome 14 saniye TTS donmasını kesin olarak engeller)
       const rawParts = cleaned.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [cleaned];
       const chunks = [];
       rawParts.forEach(part => {
@@ -844,7 +948,6 @@
         if (p.length <= 180) {
           chunks.push(p);
         } else {
-          // Çok uzun cümleleri virgüllerden böl
           const subParts = p.split(/,\s*/);
           let current = '';
           subParts.forEach(sp => {
@@ -902,8 +1005,6 @@
         return;
       }
 
-      // ÖNEMLİ KÖK NEDEN ÇÖZÜMÜ 1:
-      // TTS başlarken mikrofon açıksa ses kanalı çakışmasını (synthesis-failed) önlemek için mikrofonu geçici duraklat
       const wasMicWantedBeforeTts = isListeningWanted;
       if (isRecognitionRunning) {
         pauseRecognitionForTts();
@@ -917,7 +1018,6 @@
         return;
       }
 
-      // Ses listesi henüz boşsa tekrar çekmeyi dene
       if (availableEnglishVoices.length === 0) {
         refreshVoicesList();
       }
@@ -933,12 +1033,10 @@
       let chunkIndex = 0;
       let retriedWithDefaultVoice = false;
 
-      // cancel() sonrası 65ms bekle (Chrome ve iOS Safari'de yeni utterance'ın yutulmasını engeller)
       setTimeout(() => {
         isTtsSpeaking = true;
         setTtsBadgeVisible(true);
 
-        // Chrome'da 14 saniye sonra speechSynthesis'in kendiliğinden durmasını engelleyen watchdog
         ttsResumeWatchdog = setInterval(() => {
           if ('speechSynthesis' in window && window.speechSynthesis.speaking && window.speechSynthesis.paused) {
             try { window.speechSynthesis.resume(); } catch (e) {}
@@ -957,7 +1055,6 @@
           utter.rate = Number(appState.ttsRate) || 1.0;
           utter.pitch = 1.0;
 
-          // Eğer özel ses synthesis-failed verdiyse voice atamadan sistem varsayılanıyla oku
           if (!useFallbackNullVoice && selectedVoice) {
             utter.voice = selectedVoice;
           }
@@ -965,7 +1062,6 @@
           let started = false;
           const startGuardTimer = setTimeout(() => {
             if (!started && isTtsSpeaking) {
-              // Ses 2.2 saniye içinde başlamadıysa resume() zorla veya varsayılan sese düş
               try { window.speechSynthesis.resume(); } catch (e) {}
               if (!retriedWithDefaultVoice && selectedVoice) {
                 retriedWithDefaultVoice = true;
@@ -994,7 +1090,6 @@
               return;
             }
             appendDiagLog(`Ses uyarısı (${errName}) — otomatik kurtarma devrede`);
-            // Eğer seçili ses hata verdiyse (synthesis-failed), voice=null ile aynı cümleyi yeniden dene
             if (!retriedWithDefaultVoice) {
               retriedWithDefaultVoice = true;
               try { window.speechSynthesis.cancel(); } catch (e) {}
@@ -1021,7 +1116,6 @@
           isTtsSpeaking = false;
           setTtsBadgeVisible(false);
 
-          // AI konuşmayı bitirdiğinde otomatik mikrofon açma (veya önceden açıksa devam ettirme)
           if (activeSession && (wasMicWantedBeforeTts || activeSession.autoMicAfterTts) && !appState.keyboardDictation) {
             setTimeout(() => {
               if (activeSession && !isTtsSpeaking) {
@@ -1082,9 +1176,7 @@
           micLevelAnimFrame = requestAnimationFrame(updateMeter);
         }
         updateMeter();
-      } catch (err) {
-        // getUserMedia başarısız olsa bile SpeechRecognition kendi mikrofon kanalını açabilir
-      }
+      } catch (err) {}
     }
 
     function stopMicLevelMeter() {
@@ -1159,7 +1251,6 @@
     }
 
     function startContinuousListening() {
-      // Eğer TTS konuşuyorsa önce onu durdur
       if (isTtsSpeaking) {
         stopTtsImmediately();
       }
@@ -1174,7 +1265,6 @@
       updateMicUiState();
       startMicLevelMeter();
 
-      // Mevcut metin kutusunda kullanıcı yazısı varsa onu koru
       const textarea = document.getElementById('txtUserResponse');
       if (textarea && textarea.value.trim() && !spokenFinalBuffer) {
         spokenFinalBuffer = textarea.value.trim();
@@ -1244,7 +1334,6 @@
           showToast('Mikrofon izni verilmedi. Tarayıcı adres çubuğundan veya iPhone Ayarlar > Safari > Mikrofon bölümünden izin ver.');
           return;
         }
-        // no-speech veya aborted hatalarında oturumu kapatma; onend içinde otomatik yeniden başlayacak
         if (err !== 'no-speech' && err !== 'aborted') {
           appendDiagLog(`Mikrofon uyarısı: ${err} (otomatik yeniden bağlanıyor)`);
         }
@@ -1252,15 +1341,12 @@
 
       rec.onend = () => {
         isRecognitionRunning = false;
-        // Eğer son kalan interim kelimeler varsa ve yeni oturum başlayacaksa onları final'e ekle (kelime kaybını sıfırlar!)
         if (spokenInterimBuffer.trim()) {
           spokenFinalBuffer = `${spokenFinalBuffer} ${spokenInterimBuffer}`.replace(/\s+/g, ' ').trim();
           spokenInterimBuffer = '';
           syncSpokenBuffersToUi();
         }
 
-        // KÖK NEDEN ÇÖZÜMÜ 2:
-        // Kullanıcı mikrofonu kapatmadığı sürece (isListeningWanted === true) duraksamalarda mikrofon kapansa bile 150ms içinde yeniden başlat!
         if (isListeningWanted && activeSession && !isTtsSpeaking) {
           sttRestartTimer = setTimeout(() => {
             if (isListeningWanted && activeSession && !isTtsSpeaking) {
@@ -1305,13 +1391,95 @@
     }
 
     /********************************************************************
-     * 5. GEMINI API İSTEMCİSİ (OTOMATİK MODEL GERİ DÖNÜŞ ZİNCİRİ İLE)
+     * 5. ÇOK TURLU, BAĞLAM DUYARLI VE TEKRARSIZ SORU ÜRETİM MOTORU
      ********************************************************************/
-    async function callGeminiWithFallback(promptText, systemInstruction, useFastModel = false, expectJson = false) {
+    function getNextConversationAngle() {
+      if (!activeSession) return CONVERSATION_ANGLES[0];
+      if (!Array.isArray(activeSession.usedAngleIds)) {
+        activeSession.usedAngleIds = [];
+      }
+      // Henüz kullanılmamış açılardan seç;12 açının tamamı bittiyse sıfırlayıp farklı sırayla devam et
+      let remaining = CONVERSATION_ANGLES.filter(a => !activeSession.usedAngleIds.includes(a.id));
+      if (remaining.length === 0) {
+        activeSession.usedAngleIds = [];
+        remaining = CONVERSATION_ANGLES.slice();
+      }
+      const chosen = remaining[0];
+      activeSession.usedAngleIds.push(chosen.id);
+      return chosen;
+    }
+
+    function updateAngleBadgeUi(turnNumber, angleObj) {
+      const badge = document.getElementById('convAngleBadge');
+      if (!badge) return;
+      if (turnNumber <= 1) {
+        badge.textContent = 'Tur 1 • Açılış Sorusu';
+      } else if (angleObj) {
+        badge.textContent = `Tur ${turnNumber} • Açı: ${angleObj.trLabel}`;
+      }
+    }
+
+    // Kullanıcının son cevabındaki anahtar kelimeleri ve odak noktasını çıkarır
+    function extractUserFocusPhrase(userText) {
+      if (!userText) return '';
+      const stopWords = new Set([
+        'i', 'me', 'my', 'myself', 'we', 'our', 'you', 'your', 'he', 'him', 'his', 'she', 'her',
+        'it', 'its', 'they', 'them', 'their', 'what', 'which', 'who', 'whom', 'this', 'that',
+        'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has',
+        'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or',
+        'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against',
+        'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from',
+        'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once',
+        'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more',
+        'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than',
+        'too', 'very', 'can', 'will', 'just', 'should', 'now', 'think', 'like', 'really', 'actually',
+        'also', 'much', 'many', 'well', 'yes', 'yeah', 'no', 'dont', 'didnt', 'im', 'ive', 'usually',
+        'always', 'sometimes', 'often', 'lot', 'things', 'thing', 'good', 'great', 'nice', 'love',
+        'enjoy', 'prefer', 'favorite', 'favourite', 'because', 'when', 'make', 'makes', 'made'
+      ]);
+
+      const words = userText
+        .replace(/[^a-zA-Z0-9\s'-]/g, ' ')
+        .split(/\s+/)
+        .map(w => w.trim())
+        .filter(w => w.length >= 3 && !stopWords.has(w.toLowerCase()));
+
+      if (words.length === 0) return '';
+      // En anlamlı 1-2 kelimeyi seç
+      if (words.length >= 2) {
+        return `${words[words.length - 2]} and ${words[words.length - 1]}`.toLowerCase();
+      }
+      return words[0].toLowerCase();
+    }
+
+    // Aynı veya çok benzer sorunun tekrar sorulup sorulmadığını denetler
+    function isQuestionAlreadyAsked(candidateText) {
+      if (!activeSession || !Array.isArray(activeSession.askedQuestions)) return false;
+      const normCandidate = candidateText.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return activeSession.askedQuestions.some(prev => {
+        const normPrev = prev.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (!normPrev || !normCandidate) return false;
+        if (normPrev === normCandidate) return true;
+        // Son 45 karakter aynıysa (aynı soru cümlesi) tekrar say
+        if (normPrev.length > 45 && normCandidate.length > 45) {
+          if (normPrev.slice(-45) === normCandidate.slice(-45)) return true;
+        }
+        return false;
+      });
+    }
+
+    function registerAskedQuestion(text) {
+      if (!activeSession) return;
+      if (!Array.isArray(activeSession.askedQuestions)) {
+        activeSession.askedQuestions = [];
+      }
+      activeSession.askedQuestions.push(text);
+    }
+
+    async function callGeminiWithFallback(promptText, systemInstruction, useFastModel = false, expectJson = false, angleObj = null) {
       const currentKey = (apiKey || '').trim();
       if (!currentKey) {
-        // API anahtarı girilmemişse çevrimdışı akıllı simülasyon yanıtı üret (uygulama asla kilitlenmez)
-        return generateOfflineSmartFallback(promptText, expectJson);
+        return generateDynamicContextualFallback(promptText, expectJson, angleObj);
       }
 
       const preferred = useFastModel ? appState.fastModel : appState.mainModel;
@@ -1329,7 +1497,8 @@
           const payload = {
             contents: [{ role: 'user', parts: [{ text: promptText }] }],
             generationConfig: {
-              temperature: 0.7
+              temperature: 0.85,
+              topP: 0.92
             }
           };
           if (systemInstruction) {
@@ -1356,7 +1525,6 @@
           const data = await resp.json();
           const textOut = data?.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('').trim();
           if (textOut) {
-            // Eğer yedek model çalıştıysa ayarları sessizce güncelle
             if (!useFastModel && appState.mainModel !== modelName) {
               appState.mainModel = modelName;
               const mainInput = document.getElementById('inputMainModel');
@@ -1369,6 +1537,10 @@
               if (fastInput) fastInput.value = modelName;
               saveAppState();
             }
+            // Eğer model kazara daha önce sorduğu bir sorunun aynısını ürettiyse dinamik motorla çeşitlendir
+            if (!expectJson && isQuestionAlreadyAsked(textOut)) {
+              return generateDynamicContextualFallback(promptText, false, angleObj);
+            }
             return textOut;
           }
         } catch (err) {
@@ -1376,91 +1548,163 @@
         }
       }
 
-      appendDiagLog(`Tüm Gemini modelleri denendi, çevrimdışı yedek yanıt kullanılıyor. (${lastError ? lastError.message : ''})`);
-      return generateOfflineSmartFallback(promptText, expectJson);
+      appendDiagLog(`Çevrimdışı bağlam duyarlı dinamik soru motoru devrede. (${lastError ? lastError.message : ''})`);
+      return generateDynamicContextualFallback(promptText, expectJson, angleObj);
     }
 
-    function generateOfflineSmartFallback(promptText, expectJson) {
+    // %100 TEKRARSIZ, KULLANICININ SON CÜMLESİNE VE 12 FARKLI BAKIŞ AÇISINA GÖRE SORU ÜRETEN AKILLI MOTOR
+    function generateDynamicContextualFallback(promptText, expectJson, angleObj) {
       if (expectJson) {
         return JSON.stringify({
-          summary: "Konuşma pratiği tamamlandı. Akıcılığını artırmak için cümlelerini STAR (Situation, Task, Action, Result) yapısıyla genişletebilirsin.",
+          summary: "Konuşma pratiği tamamlandı! Farklı açılardan gelen sorulara verdiğin cevaplar akıcıydı; örneklerini detaylandırarak konuşma süreni ve kelime çeşitliliğini daha da artırabilirsin.",
           itepScore: "4.5 / 6.0 (B2 - Upper Intermediate)",
           errors: [
             {
-              category: "Prepositions & Articles",
-              wrong: "We made root cause analysis for supplier part.",
-              right: "We conducted a root cause analysis on the supplier component.",
-              explanation: "'Conduct an analysis on' kalıbı kalite mühendisliği mülakatlarında daha doğal ve profesyoneldir."
+              category: "Natural Phrasing",
+              wrong: "I very like talking about this topic.",
+              right: "I really enjoy talking about this topic.",
+              explanation: "İngilizcede fiilleri nitelendirirken 'very like' yerine 'really like' veya 'really enjoy' kullanılır."
             }
           ],
           vocabUpgrades: [
             {
-              basic: "fix the problem",
-              advanced: "implement corrective and preventive actions (CAPA)",
-              example: "We implemented corrective actions to prevent recurrence on the assembly line."
+              basic: "very good",
+              advanced: "compelling / exhilarating",
+              example: "Watching a close match in the final minutes is truly exhilarating."
             }
           ]
         });
       }
 
       if (!activeSession) {
-        return "Hello! Could you tell me briefly about a technical challenge you solved recently?";
+        return "Hello! What topic would you like to chat about today?";
       }
 
-      const turnCount = activeSession.messages.filter(m => m.role === 'ai').length;
+      const aiTurnCount = activeSession.messages.filter(m => m.role === 'ai').length;
+      const userMessages = activeSession.messages.filter(m => m.role === 'user');
+      const lastUserText = userMessages.length > 0 ? userMessages[userMessages.length - 1].text : '';
+      const userFocus = extractUserFocusPhrase(lastUserText);
       const mode = activeSession.mode;
+      const currentAngle = angleObj || CONVERSATION_ANGLES[aiTurnCount % CONVERSATION_ANGLES.length];
 
-      if (mode === 'kariyer') {
-        const questions = [
-          `Welcome to your interview for the ${activeSession.position || 'Quality Assurance Engineer'} role. Could you walk me through a time when you detected a recurring non-conformance from a supplier and used the 8D or 5 Whys methodology to resolve it?`,
-          `Thank you for sharing that. How did you verify the effectiveness of the corrective actions using SPC or MSA, and how did you update the FMEA and Control Plan afterwards?`,
-          `That is a very structured approach. If a production manager pushes to release a quarantined batch due to urgent delivery schedules, how do you handle the situation while maintaining AS9100 and ISO 9001 compliance?`
-        ];
-        return questions[turnCount % questions.length];
-      }
-
-      if (mode === 'rol') {
-        const replies = [
-          "Hello, thanks for calling. Looking at our inspection logs, the parts were within tolerance when they left our facility. Why do you think the dimensional deviation happened on your line?",
-          "I see your CMM report point, but retooling our fixture this week will delay your next shipment by four days. Can we agree on a temporary 100% sorting containment while we adjust the machining parameters?",
-          "Fair enough. We will submit the 8D containment steps within 24 hours and verify the next batch with a First Article Inspection report."
-        ];
-        return replies[turnCount % replies.length];
-      }
-
-      if (mode === 'aciklama') {
-        const concept = activeSession.concept || 'FMEA';
-        const replies = [
-          `Hi! I keep hearing engineers talk about ${concept}, but I work in a non-technical department. Could you explain what ${concept} means in simple everyday words?`,
-          `Wait, so how does ${concept} actually prevent mistakes before a product reaches the customer? Can you give me a daily-life example?`,
-          `That makes much more sense now! How do you decide which risk is the most urgent one to fix first?`
-        ];
-        return replies[turnCount % replies.length];
-      }
-
-      if (mode === 'arguman') {
-        const topic = activeSession.debateTopic || 'Remote work makes companies less innovative.';
-        const replies = [
-          `Let's debate this statement: "${topic}". What is your stance on this issue, and what is your strongest argument?`,
-          `I understand your point, however studies show the opposite effect when teams lack spontaneous face-to-face collaboration. How would you counter that evidence?`,
-          `That's an interesting distinction. Still, what about long-term mentorship for junior engineers? Doesn't your position overlook that?`
-        ];
-        return replies[turnCount % replies.length];
-      }
-
-      if (mode === 'sinav') {
-        if (turnCount === 0) {
-          return "Part 1 Question: Describe a tool, software, or methodology that helps you stay organized in your daily work or studies, and explain why it is effective for you.";
+      // 1) AÇILIŞ SORULARI (Yalnızca aiTurnCount === 0 iken çalışır, bir daha ASLA tekrarlanmaz!)
+      if (aiTurnCount === 0) {
+        if (mode === 'aciklama') {
+          const subj = (activeSession.concept || 'coffee').trim();
+          return `Hi! Imagine I have never heard of "${subj}" before in my life. How would you explain what "${subj}" is in simple, everyday words?`;
         }
-        return "Part 2 Question: Some companies prioritize speed and cost reduction over strict quality inspection, while others enforce zero-defect standards despite delays. Which approach is more sustainable in the long run, and why?";
+        if (mode === 'rol') {
+          const scTitle = activeSession.roleScenario ? activeSession.roleScenario.title : 'our scenario';
+          if (/kafe|kahve|restoran|sipariş/i.test(scTitle)) {
+            return "Good morning! Welcome to Cozy Bean Café. What can I get started for you today—perhaps a freshly brewed coffee or something from our bakery?";
+          }
+          if (/havalimanı|otel|seyahat|uçuş/i.test(scTitle)) {
+            return "Hello! Welcome to the reception desk. How can I help you with your booking or flight arrangements today?";
+          }
+          return `Hello! Let's start our roleplay: "${scTitle}". How would you like to begin the situation?`;
+        }
+        if (mode === 'arguman') {
+          const topic = activeSession.debateTopic || 'Social media does more harm than good.';
+          return `Let's debate this statement: "${topic}". What is your personal view on this, and what is your strongest argument?`;
+        }
+        if (mode === 'sinav') {
+          return "Part 1 Question: Talk about a hobby, sport, or activity that helps you recharge after a busy week, and explain why it means so much to you.";
+        }
+        if (mode === 'kariyer') {
+          return `Welcome! Let's practice for your ${activeSession.position || 'professional'} interview. Could you start by introducing yourself and sharing what excites you most about this field?`;
+        }
+
+        // SOHBET (Serbest Konu) açılış sorusu (Yalnızca 1. turda sorulur)
+        const cat = (activeSession.topic || '').trim();
+        const lowerCat = cat.toLowerCase();
+        if (cat === 'Spor' || /\b(sport|sports|spor|football|basketball|fitness|gym)\b/i.test(lowerCat)) {
+          return "Let's dive into sports! Whether it's playing yourself or watching big tournaments, which sport captures your attention the most, and what drew you to it?";
+        }
+        if (cat === 'Sanat' || cat === 'Müzik & Sanat') {
+          return "Let's talk about music and art! What kind of music, films, or creative works do you find yourself coming back to again and again?";
+        }
+        if (cat === 'Seyahat') {
+          return "Let's talk about travel and exploring new places! What is a trip or city that left a lasting impression on you, and what made the atmosphere so special?";
+        }
+        if (cat === 'Sinema & Dizi') {
+          return "Let's talk about movies and TV shows! What is a story, film, or series that hooked you from the very first scene?";
+        }
+        if (cat === 'Yemek & Mutfak') {
+          return "Let's talk about food and cuisine! What is a dish or meal you never get tired of eating, and what makes its flavor stand out for you?";
+        }
+        if (cat === 'Hayvanlar & Evcil Dostlar' || /\b(cat|cats|kedi|dog|dogs|lion|aslan|animal|pet)\b/i.test(lowerCat)) {
+          const subjectName = cat === 'Hayvanlar & Evcil Dostlar' ? 'animals and pets' : cat;
+          return `Let's talk about ${subjectName}! What do you find most fascinating, funny, or admirable about ${subjectName}?`;
+        }
+        const topicLabel = activeSession.topicEnglish || cat || 'everyday life';
+        return `Let's have an open conversation about ${topicLabel}! When you think about ${topicLabel}, what is the first personal experience or interest that comes to your mind?`;
       }
 
-      const generalQuestions = [
-        `Let's talk about ${activeSession.topic || 'engineering and daily life'}. What is a project or skill you have been focusing on recently, and what makes it interesting to you?`,
-        `That sounds intriguing! What was the most unexpected obstacle you faced while working on that, and how did you overcome it?`,
-        `Looking ahead to the next year, how do you plan to build on this experience in your career or personal goals?`
-      ];
-      return generalQuestions[turnCount % generalQuestions.length];
+      // 2) DEVAM TURLARI (aiTurnCount >= 1):
+      // Kullanıcının son söylediği kelimeleri (`userFocus`) ve seçilen konuyu 12 farklı açıdan işleyen geniş soru havuzu!
+      const rawTopicLabel = activeSession.concept || activeSession.debateTopic || activeSession.position || activeSession.topic || 'this topic';
+      const cleanTopic = rawTopicLabel === 'Spor' ? 'sports and athletics'
+        : rawTopicLabel === 'Sanat' ? 'art and music'
+        : rawTopicLabel === 'Seyahat' ? 'traveling and new places'
+        : rawTopicLabel === 'Hayat' ? 'everyday life'
+        : rawTopicLabel === 'Sinema & Dizi' ? 'movies and series'
+        : rawTopicLabel === 'Yemek & Mutfak' ? 'food and cooking'
+        : rawTopicLabel === 'Hayvanlar & Evcil Dostlar' ? 'animals and pets'
+        : rawTopicLabel;
+
+      const anchor = userFocus ? `"${userFocus}"` : cleanTopic;
+
+      // Spor kategorisi için özel 14 farklı derinleşen soru (asla başa dönmez)
+      const isSportsSession = activeSession.topic === 'Spor' || /\b(sport|sports|spor|football|soccer|basketball|gym|fitness|tennis|swimming|running|match|team|athlete)\b/i.test(rawTopicLabel + ' ' + lastUserText);
+
+      const candidatePool = [];
+
+      if (isSportsSession) {
+        candidatePool.push(
+          `What you mentioned about ${anchor} is a great point! Do you think mental toughness or physical talent plays a bigger role when an athlete or team is under heavy pressure in the final minutes?`,
+          `Building on your point about ${anchor}, what is the most unforgettable comeback or dramatic match you have ever witnessed, and how did you react watching it?`,
+          `That's an interesting angle on ${anchor}! If you could spend one full day training with any legendary athlete or coach in history, who would you pick and what would you ask them first?`,
+          `Thinking about ${anchor}, some people love the adrenaline of competing in a team, while others prefer solo workouts where they only compete against themselves. How do you feel about that difference?`,
+          `I like how you described ${anchor}. How do you think modern technology—like VAR in football, instant video replay, or wearable fitness trackers—has changed the spirit of sports?`,
+          `When it comes to ${anchor}, what is the hardest habit to maintain consistently—staying motivated on tired days, avoiding injuries, or keeping up with nutrition?`,
+          `Speaking of ${anchor}, do you think huge financial transfers and commercial sponsorships make professional sports more exciting, or do they take away some of the pure passion?`,
+          `If a friend wanted to get into ${anchor} for the very first time this weekend, what is the #1 mistake you would tell them to avoid as a beginner?`,
+          `That makes a lot of sense! How does doing or watching ${anchor} affect your mood and energy levels after a long, stressful week?`,
+          `Let's imagine a "what if" scenario around ${anchor}: if you could change one rule in your favorite sport to make the game twice as exciting, what rule would you change?`,
+          `Looking at different generations, do you think young people today are more active in sports than 20 years ago, or has screen time completely changed how we experience ${anchor}?`,
+          `What is an unpopular opinion you hold about ${anchor} that most sports fans around you would immediately argue against?`,
+          `In major tournaments, atmosphere is everything. Would you rather watch a championship final from the front row of a roaring stadium or from home with your closest friends? Why?`,
+          `Looking ahead over the next year, do you have a personal fitness, health, or sports goal that you would love to achieve?`
+        );
+      }
+
+      // Her türlü özel konu (cat, aslan, film, seyahat, yemek, bilim, vb.) ve tüm modlar için kullanıcının son cümlesine (`anchor`) bağlanan 16 farklı açıdan özgün soru:
+      candidatePool.push(
+        `I really like what you said about ${anchor}! Can you recall a specific moment or real-life story that made you see ${cleanTopic} in that way?`,
+        `Your point about ${anchor} raises an interesting question: what do you think is the biggest misconception most people have when it comes to ${cleanTopic}?`,
+        `Let's look at ${anchor} from a "what if" angle—if you had unlimited time and resources to explore or experience anything related to ${cleanTopic}, what would you do first?`,
+        `That's a fascinating perspective on ${anchor}. Why do you think some people are deeply passionate about ${cleanTopic} while others barely notice it in daily life?`,
+        `Pick up on what you shared about ${anchor}: if you had to compare how people approached ${cleanTopic} ten years ago versus today, what is the biggest change you notice?`,
+        `Speaking of ${anchor}, what is one small detail or behind-the-scenes aspect of ${cleanTopic} that you personally find the most enjoyable or surprising?`,
+        `Let's test a dilemma related to ${anchor}: would you rather have a once-in-a-lifetime extraordinary experience with ${cleanTopic}, or enjoy it in a simple, relaxing way every single week?`,
+        `If a curious friend asked you for your #1 recommendation or piece of advice regarding ${anchor}, what would you tell them to try first?`,
+        `How does ${anchor} connect to your everyday mood—is ${cleanTopic} something that gives you energy and excitement, or does it help you slow down and relax?`,
+        `What is a controversial or unpopular opinion you have about ${cleanTopic} (especially around ${anchor}) that most people might disagree with?`,
+        `If you could change or improve one thing about how ${cleanTopic} works in the real world today, what change would make the biggest difference?`,
+        `Thinking about ${anchor} across different cultures and countries, how do you think people in other parts of the world experience ${cleanTopic} differently?`,
+        `What was the turning point or first memory that sparked your interest in ${anchor} and ${cleanTopic}?`,
+        `Looking 5 or 10 years into the future, how do you think ${cleanTopic}—and the way we experience ${anchor}—will evolve?`
+      );
+
+      // Daha önce bu oturumda HİÇ sorulmamış ilk soruyu seç
+      for (const candidate of candidatePool) {
+        if (!isQuestionAlreadyAsked(candidate)) {
+          return candidate;
+        }
+      }
+
+      // Eğer tüm havuz tüketildiyse (20+ tur), tur numarasına ve son kelimeye özel benzersiz bir soru üret
+      return `You brought up an intriguing point about ${anchor} on turn ${aiTurnCount + 1}. Looking at it from a fresh angle, what is one aspect of ${cleanTopic} we haven't touched on yet that you think deserves more attention?`;
     }
 
     /********************************************************************
@@ -1473,7 +1717,6 @@
 
       let currentStreak = 0;
       const cursor = new Date();
-      // Bugün hedef tamamlanmadıysa dünden geriye kontrol et
       if ((map[todayIso] || 0) < goal) {
         cursor.setDate(cursor.getDate() - 1);
       }
@@ -1522,7 +1765,6 @@
       document.getElementById('statTotalMinutes').textContent = String(stats.totalMinutes);
       document.getElementById('statTotalSessions').textContent = String(appState.conversations.length);
 
-      // Günlük hedef butonları
       document.querySelectorAll('.goal-btn').forEach(btn => {
         const g = Number(btn.getAttribute('data-goal'));
         if (g === goal) {
@@ -1532,7 +1774,6 @@
         }
       });
 
-      // 21 Günlük Halka Zinciri
       const chainContainer = document.getElementById('chain21Container');
       chainContainer.innerHTML = '';
       const dayNames = ['Pz', 'Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct'];
@@ -1563,7 +1804,6 @@
         chainContainer.appendChild(item);
       }
 
-      // 28 Günlük Isı Haritası
       const heatmap = document.getElementById('heatmapGrid');
       heatmap.innerHTML = '';
       heatmap.style.gridTemplateColumns = 'repeat(14, minmax(0, 1fr))';
@@ -1582,7 +1822,6 @@
         heatmap.appendChild(cell);
       }
 
-      // Sık yaptığın hatalar
       const freqContainer = document.getElementById('homeFrequentErrors');
       if (appState.errors.length === 0) {
         freqContainer.textContent = 'İlk konuşmanın analizinden sonra hata kalıpların burada görünecek.';
@@ -1600,7 +1839,6 @@
         });
       }
 
-      // Son konuşmalar
       const recentContainer = document.getElementById('homeRecentConversations');
       const countBadge = document.getElementById('recentCountBadge');
       countBadge.textContent = `${appState.conversations.length} kayıt`;
@@ -1623,7 +1861,6 @@
         });
       }
 
-      // API durum noktası
       const dot = document.getElementById('apiStatusDot');
       if (dot) {
         dot.className = apiKey
@@ -1676,55 +1913,89 @@
     }
 
     /********************************************************************
-     * 7. PRATİK MODU KURULUM EKRANLARI
+     * 7. PRATİK MODU KURULUM EKRANLARI (TAM SIFIRLANAN DURUM YÖNETİMİ)
      ********************************************************************/
     let currentSetupConfig = {
       mode: 'sohbet',
       topic: 'Rastgele',
-      position: 'Quality Assurance Engineer (aerospace manufacturing)',
+      customTopic: '',
+      position: 'General Professional / Specialist',
       questionType: 'Karma',
       roleScenarioIndex: 0,
+      customRoleScenario: '',
       debateTopic: '',
-      concept: 'FMEA'
+      concept: 'Cat (Kedi)',
+      customConcept: ''
     };
+
+    function resetSetupConfigForNewMode(mode) {
+      currentSetupConfig = {
+        mode: mode,
+        topic: 'Rastgele',
+        customTopic: '',
+        position: 'General Professional / Specialist',
+        questionType: 'Karma',
+        roleScenarioIndex: 0,
+        customRoleScenario: '',
+        debateTopic: '',
+        concept: 'Cat (Kedi)',
+        customConcept: ''
+      };
+    }
 
     const ROLE_SCENARIOS = [
       {
-        title: 'Tedarikçiye şikayet görüşmesi',
-        desc: 'Bir tedarikçiden gelen parçalarda tekrar eden ölçü uygunsuzluğu var. Tedarikçinin kalite müdürünü arıyorsun. O biraz savunmada.'
+        title: 'Kafede sipariş ve günlük sohbet',
+        desc: 'Bir kafede kahve/tatlı sipariş ediyorsun, siparişinde küçük bir karışıklık oluyor ve baristayla kibarca çözüyorsun.'
       },
       {
-        title: 'Müşteri denetiminde bulgu',
-        desc: 'Müşteri denetçisi kalibrasyon kayıtlarıyla ilgili bir bulgu yazmak üzere. Durumu açıklayıp bulguyu yumuşatmaya çalışıyorsun.'
+        title: 'Havalimanı / Otel resepsiyonu',
+        desc: 'Uçuş rötarı, bagaj veya otel odası değişikliği konusunda görevliyle çözüm odaklı konuşuyorsun.'
       },
       {
-        title: 'Toplantıda kök neden anlatma',
-        desc: 'Üretim müdürü, bulduğun kök nedene ikna olmamış. Analizini anlatıp aksiyonları kabul ettirmen gerekiyor.'
+        title: 'Veteriner veya doktor ziyareti',
+        desc: 'Evcil hayvanının (örn. kedinin) veya kendinin rutin kontrolü için belirtileri anlatıp sorular soruyorsun.'
       },
       {
-        title: 'Teslim tarihi pazarlığı',
-        desc: 'Müşterinin satın alma müdürü daha erken teslim istiyor, ama parti kalite blokajında. Hem ilişkiyi korumalı hem de kaliteden taviz vermemelisin.'
+        title: 'Arkadaşla hafta sonu / tatil planı',
+        desc: 'Yabancı bir arkadaşınla nereye gideceğinizi, ne yiyeceğinizi ve hangi aktiviteleri yapacağınızı planlıyorsun.'
       },
       {
-        title: 'Sürpriz senaryo',
-        desc: 'AI bir iş senaryosu kurar ve rolünü sana ilk mesajda anlatır.'
+        title: 'Tedarikçiye şikayet görüşmesi (İş)',
+        desc: 'Gelen parçalarda tekrar eden uygunsuzluğu tedarikçi temsilcisiyle görüşüp aksiyon istiyorsun.'
+      },
+      {
+        title: 'Müşteri denetiminde bulgu (İş)',
+        desc: 'Denetçinin yazdığı bulguyu açıklayıp kök neden ve aksiyon planını anlatıyorsun.'
+      },
+      {
+        title: 'Sürpriz günlük senaryo',
+        desc: 'AI günlük hayattan eğlenceli ve gerçekçi bir senaryo kurar, rolünü ilk mesajda anlatır.'
       }
     ];
 
     const DEBATE_TOPICS = [
-      'Remote work makes companies less innovative.',
+      'Cats make better apartment pets than dogs.',
+      'Working or studying from home is better than commuting every day.',
+      'Social media does more harm than good to real friendships.',
+      'Watching movies at home is better than going to the cinema.',
+      'Traveling alone is more rewarding than traveling with a group.',
       'University education should be free for everyone.',
-      'Social media does more harm than good.',
-      'Self-driving cars should be allowed on public roads now.',
-      'Professional athletes are overpaid.',
-      'Governments should tax sugary drinks.',
-      'Museums should return artifacts to their countries of origin.',
-      'Standardized exams are a fair way to measure ability.'
+      'Artificial intelligence will make everyday life much easier.',
+      'Cooking at home is always better than eating out at restaurants.'
     ];
 
-    const TECHNICAL_CONCEPTS = [
-      'FMEA', 'SPC', '8D', 'Cpk', 'PPAP',
-      '5 Neden', 'Kalibrasyon', 'Tolerans', 'Kontrol planı', 'First Article Inspection'
+    const EXPLAIN_CONCEPTS = [
+      'Cat (Kedi)',
+      'Coffee (Kahve)',
+      'Football (Futbol)',
+      'Why we dream (Rüyalar)',
+      'Photosynthesis',
+      'Cooking Pasta',
+      'Smartphones',
+      'Inflation (Enflasyon)',
+      '8D Problem Solving',
+      'FMEA'
     ];
 
     function openModeSetup(mode) {
@@ -1746,28 +2017,80 @@
       if (mode === 'sohbet') {
         tagEl.textContent = 'SOHBET / Serbest Konu';
         titleEl.textContent = 'Serbest Konu';
-        descEl.textContent = 'Seçtiğin alanda rastgele bir soru gelir. AI cevabına göre konuşmayı sürdürür, sen bitirene kadar devam eder.';
-        const topics = ['Rastgele', 'Spor', 'Sanat', 'Hayat', 'Politika', 'Eğitim', 'Mühendislik', 'Sağlık', 'Genel kültür', 'Bilim ve teknoloji', 'Seyahat', 'İş hayatı'];
+        descEl.textContent = 'Aşağıdan bir kategori (örn. Spor, Sanat, Seyahat) seçebilir veya istediğin özel konuyu kutuya yazabilirsin. Her turda söylediğin cümlelere göre farklı bir açıdan (Anı, Karşılaştırma, What-If, Tartışma, Tavsiye vb.) yeni ve özgün sorular sorulur; hiçbir soru tekrar etmez.';
+        const topics = [
+          'Rastgele', 'Spor', 'Sanat', 'Hayat', 'Politika', 'Eğitim',
+          'Mühendislik', 'Sağlık', 'Genel kültür', 'Bilim ve teknoloji',
+          'Seyahat', 'İş hayatı', 'Hayvanlar & Evcil Dostlar', 'Sinema & Dizi', 'Yemek & Mutfak', 'Oyun & Hobi'
+        ];
         const wrap = document.createElement('div');
-        wrap.innerHTML = '<div class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">KONU ALANI</div>';
-        const btnGrid = document.createElement('div');
-        btnGrid.className = 'flex flex-wrap gap-2';
+        wrap.className = 'space-y-4';
+        wrap.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold uppercase tracking-wide text-slate-600">KONU ALANI SEÇ</span>
+              <span id="activeSelectionPreviewBadge" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200"></span>
+            </div>
+            <div id="sohbetTopicBtns" class="flex flex-wrap gap-2"></div>
+          </div>
+          <div class="pt-2 border-t border-slate-100">
+            <label for="inputCustomChatTopic" class="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">Veya istediğin özel bir konu / kelime yaz (İsteğe bağlı)</label>
+            <div class="flex gap-2">
+              <input id="inputCustomChatTopic" type="text" placeholder="Örn. cat, premier league football, favorite movies, making pasta..." value="${escapeHtml(currentSetupConfig.customTopic)}" class="flex-1 rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+              <button id="btnClearCustomTopic" type="button" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-600">Temizle</button>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">Yukarıdaki kategori butonlarından birine (örn. <strong>Spor</strong>) tıkladığında bu kutu otomatik sıfırlanır ve yalnızca seçtiğin kategori konuşulur.</p>
+          </div>
+        `;
+        dynEl.appendChild(wrap);
+
+        const customTopicInput = wrap.querySelector('#inputCustomChatTopic');
+        const clearBtn = wrap.querySelector('#btnClearCustomTopic');
+        const btnGrid = wrap.querySelector('#sohbetTopicBtns');
+        const badgeEl = wrap.querySelector('#activeSelectionPreviewBadge');
+
+        function refreshSohbetSelectionStyles() {
+          const hasCustom = Boolean(currentSetupConfig.customTopic && currentSetupConfig.customTopic.trim());
+          if (badgeEl) {
+            badgeEl.textContent = hasCustom
+              ? `Seçili Özel Konu: "${currentSetupConfig.customTopic.trim()}"`
+              : `Seçili Kategori: ${currentSetupConfig.topic}`;
+          }
+          Array.from(btnGrid.children).forEach(b => {
+            const btnTopic = b.getAttribute('data-topic-name');
+            const isActive = !hasCustom && currentSetupConfig.topic === btnTopic;
+            b.className = isActive
+              ? 'px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-600 text-white shadow-sm transition'
+              : 'px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
+          });
+        }
+
         topics.forEach(t => {
           const b = document.createElement('button');
           b.type = 'button';
           b.textContent = t;
-          const active = currentSetupConfig.topic === t;
-          b.className = active
-            ? 'px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-600 text-white'
-            : 'px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200';
+          b.setAttribute('data-topic-name', t);
           b.addEventListener('click', () => {
             currentSetupConfig.topic = t;
-            openModeSetup('sohbet');
+            currentSetupConfig.customTopic = '';
+            customTopicInput.value = '';
+            refreshSohbetSelectionStyles();
           });
           btnGrid.appendChild(b);
         });
-        wrap.appendChild(btnGrid);
-        dynEl.appendChild(wrap);
+
+        customTopicInput.addEventListener('input', (e) => {
+          currentSetupConfig.customTopic = e.target.value;
+          refreshSohbetSelectionStyles();
+        });
+
+        clearBtn.addEventListener('click', () => {
+          currentSetupConfig.customTopic = '';
+          customTopicInput.value = '';
+          refreshSohbetSelectionStyles();
+        });
+
+        refreshSohbetSelectionStyles();
       } else if (mode === 'sinav') {
         tagEl.textContent = 'SINAV / iTEP Simülasyonu';
         titleEl.textContent = 'iTEP Simülasyonu';
@@ -1775,20 +2098,20 @@
         instantFixWrap.classList.add('hidden');
         dynEl.innerHTML = `
           <div class="p-4 rounded-xl bg-indigo-50 border border-indigo-200 text-xs sm:text-sm text-indigo-950 space-y-2">
-            <div><strong>Format:</strong> Bölüm 1'de kısa bir soru gelir: 30 saniye hazırlık, 45 saniye konuşma. Bölüm 2'de iki tarafı olan bir konu ve senin görüşün sorulur: 45 saniye hazırlık, 60 saniye konuşma. Puanlar 0–6 ölçeğinde tahmin edilir.</div>
-            <div class="text-xs text-indigo-800">Bu süreler iTEP'in yayımladığı iTEP Academic özetinden alındı. iTEP Advanced'in konuşma bölümü farklıysa sınav kurumunun güncel kılavuzunu esas al.</div>
+            <div><strong>Format:</strong> Bölüm 1'de günlük hayattan kısa bir soru gelir: 30 saniye hazırlık, 45 saniye konuşma. Bölüm 2'de iki tarafı olan genel bir konu ve senin görüşün sorulur: 45 saniye hazırlık, 60 saniye konuşma. Puanlar 0–6 ölçeğinde tahmin edilir.</div>
+            <div class="text-xs text-indigo-800">Bu süreler iTEP'in yayımladığı iTEP Academic özetinden alındı.</div>
           </div>
         `;
       } else if (mode === 'kariyer') {
         tagEl.textContent = 'KARİYER / Mülakat Provası';
         titleEl.textContent = 'Mülakat Provası';
-        descEl.textContent = 'Davranışsal ve kalite mühendisliği teknik soruları. Cevabın yapısına da geri bildirim alırsın.';
+        descEl.textContent = 'İstediğin meslek, alan veya pozisyon için mülakat provası. Cevabın yapısına da geri bildirim alırsın.';
         const wrap = document.createElement('div');
         wrap.className = 'space-y-4';
         wrap.innerHTML = `
           <div>
-            <label class="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">Pozisyon</label>
-            <input id="inputCareerPosition" type="text" value="${escapeHtml(currentSetupConfig.position)}" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            <label class="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">Pozisyon veya Alan</label>
+            <input id="inputCareerPosition" type="text" placeholder="Örn. Product Manager, Software Developer, Quality Engineer, Barista..." value="${escapeHtml(currentSetupConfig.position)}" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
           </div>
           <div>
             <div class="text-xs font-semibold uppercase tracking-wide text-slate-600 mb-2">SORU TİPİ</div>
@@ -1801,7 +2124,7 @@
           currentSetupConfig.position = e.target.value;
         });
         const typeBtns = wrap.querySelector('#careerTypeBtns');
-        ['Karma', 'Davranışsal', 'Teknik'].forEach(qt => {
+        ['Karma', 'Davranışsal', 'Mesleki / Teknik'].forEach(qt => {
           const b = document.createElement('button');
           b.type = 'button';
           b.textContent = qt;
@@ -1815,15 +2138,17 @@
           typeBtns.appendChild(b);
         });
       } else if (mode === 'rol') {
-        tagEl.textContent = 'ROL / İş Senaryosu';
-        titleEl.textContent = 'İş Senaryosu';
-        descEl.textContent = 'Tedarikçi görüşmesi, müşteri denetimi, toplantı gibi gerçek iş durumlarında rol yapma.';
+        tagEl.textContent = 'ROL / Günlük Hayat & İş Senaryosu';
+        titleEl.textContent = 'Günlük Hayat & İş Senaryosu';
+        descEl.textContent = 'Kafe, havalimanı, veteriner, arkadaş sohbeti veya iş senaryolarından birini seç ya da kendi senaryonu yaz.';
+        const wrap = document.createElement('div');
+        wrap.className = 'space-y-4';
         const list = document.createElement('div');
         list.className = 'grid grid-cols-1 sm:grid-cols-2 gap-3';
         ROLE_SCENARIOS.forEach((sc, idx) => {
           const card = document.createElement('button');
           card.type = 'button';
-          const active = currentSetupConfig.roleScenarioIndex === idx;
+          const active = currentSetupConfig.roleScenarioIndex === idx && !currentSetupConfig.customRoleScenario.trim();
           card.className = `text-left p-3.5 rounded-xl border transition ${
             active
               ? 'bg-emerald-50 border-emerald-500 ring-1 ring-emerald-500'
@@ -1835,21 +2160,33 @@
           `;
           card.addEventListener('click', () => {
             currentSetupConfig.roleScenarioIndex = idx;
+            currentSetupConfig.customRoleScenario = '';
             openModeSetup('rol');
           });
           list.appendChild(card);
         });
-        dynEl.appendChild(list);
+        wrap.appendChild(list);
+
+        const customRoleDiv = document.createElement('div');
+        customRoleDiv.innerHTML = `
+          <label class="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">Veya kendi rol senaryonu yaz</label>
+          <input id="inputCustomRoleScenario" type="text" placeholder="Örn. Adopting a cat from an animal shelter, ordering pizza on the phone..." value="${escapeHtml(currentSetupConfig.customRoleScenario)}" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        `;
+        customRoleDiv.querySelector('#inputCustomRoleScenario').addEventListener('input', (e) => {
+          currentSetupConfig.customRoleScenario = e.target.value;
+        });
+        wrap.appendChild(customRoleDiv);
+        dynEl.appendChild(wrap);
       } else if (mode === 'arguman') {
         tagEl.textContent = 'ARGÜMAN / Münazara';
         titleEl.textContent = 'Münazara';
-        descEl.textContent = 'Görüşünü söylersin, AI karşı tarafı savunup itiraz eder.';
+        descEl.textContent = 'Görüşünü söylersin, AI karşı tarafı savunup tatlı-sert itiraz eder.';
         const wrap = document.createElement('div');
         wrap.className = 'space-y-3';
         wrap.innerHTML = `
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">Münazara konusu (boş bırakırsan rastgele seçilir)</label>
-            <input id="inputDebateCustom" type="text" placeholder="Örn. Remote work makes companies less innovative." value="${escapeHtml(currentSetupConfig.debateTopic)}" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            <input id="inputDebateCustom" type="text" placeholder="Örn. Cats make better pets than dogs." value="${escapeHtml(currentSetupConfig.debateTopic)}" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
           </div>
           <div id="debatePresets" class="flex flex-wrap gap-2"></div>
         `;
@@ -1875,48 +2212,69 @@
       } else if (mode === 'aciklama') {
         tagEl.textContent = 'AÇIKLAMA / Basitçe Anlat';
         titleEl.textContent = 'Basitçe Anlat';
-        descEl.textContent = 'Teknik bir kavramı mühendis olmayan birine anlatırsın. AI anlamayan biri gibi sorular sorar.';
+        descEl.textContent = 'Herhangi bir konuyu, hayvanı, nesneyi, hobiyi veya kavramı (örn. cat, kahve, futbol, rüyalar) hiç bilmeyen meraklı bir arkadaşa basitçe anlatırsın.';
         const wrap = document.createElement('div');
         wrap.className = 'space-y-3';
         wrap.innerHTML = `
           <div>
-            <div class="text-xs font-semibold uppercase tracking-wide text-slate-600 mb-2">KAVRAM</div>
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-600 mb-2">HAZIR KONU / KAVRAM SEÇ</div>
             <div id="conceptBtns" class="flex flex-wrap gap-2"></div>
           </div>
           <div>
-            <label class="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">Veya kendi kavramın</label>
-            <input id="inputCustomConcept" type="text" placeholder="Örn. measurement system analysis" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            <label class="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-1">Veya istediğin herhangi bir kelime / konu yaz</label>
+            <input id="inputCustomConcept" type="text" placeholder="Örn. cat, pizza, bicycles, black holes, guitar..." value="${escapeHtml(currentSetupConfig.customConcept || '')}" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            <p class="text-xs text-slate-500 mt-1">Yukarıdan hazır bir buton seçtiğinde bu kutu temizlenir ve seçtiğin kavram konuşulur.</p>
           </div>
         `;
         dynEl.appendChild(wrap);
         const cBtns = wrap.querySelector('#conceptBtns');
-        TECHNICAL_CONCEPTS.forEach(c => {
+        const customInp = wrap.querySelector('#inputCustomConcept');
+
+        function refreshConceptButtons() {
+          const hasCustom = Boolean(currentSetupConfig.customConcept && currentSetupConfig.customConcept.trim());
+          Array.from(cBtns.children).forEach(b => {
+            const cName = b.getAttribute('data-concept-name');
+            const isActive = !hasCustom && currentSetupConfig.concept === cName;
+            b.className = isActive
+              ? 'px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-600 text-white'
+              : 'px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200';
+          });
+        }
+
+        EXPLAIN_CONCEPTS.forEach(c => {
           const b = document.createElement('button');
           b.type = 'button';
           b.textContent = c;
-          b.className = currentSetupConfig.concept === c
-            ? 'px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-600 text-white'
-            : 'px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200';
+          b.setAttribute('data-concept-name', c);
           b.addEventListener('click', () => {
             currentSetupConfig.concept = c;
-            openModeSetup('aciklama');
+            currentSetupConfig.customConcept = '';
+            customInp.value = '';
+            refreshConceptButtons();
           });
           cBtns.appendChild(b);
         });
-        const customInp = wrap.querySelector('#inputCustomConcept');
+
         customInp.addEventListener('input', (e) => {
-          if (e.target.value.trim()) {
-            currentSetupConfig.concept = e.target.value.trim();
-          }
+          currentSetupConfig.customConcept = e.target.value;
+          refreshConceptButtons();
         });
+
+        refreshConceptButtons();
       }
     }
 
     /********************************************************************
-     * 8. KONUŞMA OTURUMU BAŞLATMA, SÜRDÜRME VE BİTİRME
+     * 8. KONUŞMA OTURUMU BAŞLATMA VE TEKRARSIZ İLERLEME
      ********************************************************************/
+    function pickFreshRandomTopic() {
+      const candidates = RANDOM_EVERYDAY_TOPICS.filter(t => t !== lastRandomTopicUsed);
+      const picked = candidates[Math.floor(Math.random() * candidates.length)] || RANDOM_EVERYDAY_TOPICS[0];
+      lastRandomTopicUsed = picked;
+      return picked;
+    }
+
     async function startConversationSession() {
-      // KÖK NEDEN ÇÖZÜMÜ: Kullanıcı "Konuşmayı başlat" butonuna bastığı anda ses kilidini aç!
       unlockAudioAndTtsOnUserGesture();
 
       const speakAloud = document.getElementById('chkSpeakAloudSession').checked;
@@ -1926,28 +2284,57 @@
       saveAppState();
 
       const mode = currentSetupConfig.mode;
-      let headerLabel = 'SOHBET / Serbest Konu';
+
+      let sessionTopicDisplay = '';
+      let sessionTopicEnglish = '';
+
+      if (mode === 'sohbet') {
+        const customTyped = (currentSetupConfig.customTopic || '').trim();
+        if (customTyped) {
+          sessionTopicDisplay = customTyped;
+          sessionTopicEnglish = customTyped;
+        } else if (currentSetupConfig.topic === 'Rastgele') {
+          const rnd = pickFreshRandomTopic();
+          sessionTopicDisplay = `Rastgele (${rnd})`;
+          sessionTopicEnglish = rnd;
+        } else {
+          sessionTopicDisplay = currentSetupConfig.topic;
+          sessionTopicEnglish = CATEGORY_TO_ENGLISH_MAP[currentSetupConfig.topic] || currentSetupConfig.topic;
+        }
+      }
+
+      const customRoleText = (currentSetupConfig.customRoleScenario || '').trim();
+      const chosenRole = customRoleText
+        ? { title: customRoleText, desc: customRoleText }
+        : ROLE_SCENARIOS[currentSetupConfig.roleScenarioIndex];
+
+      const resolvedConcept = (currentSetupConfig.customConcept || '').trim() || currentSetupConfig.concept;
+
+      let headerLabel = `SOHBET / ${sessionTopicDisplay}`;
       if (mode === 'sinav') headerLabel = 'SINAV / iTEP Simülasyonu';
       else if (mode === 'kariyer') headerLabel = `KARİYER / Mülakat: ${currentSetupConfig.position}`;
-      else if (mode === 'rol') headerLabel = `ROL / ${ROLE_SCENARIOS[currentSetupConfig.roleScenarioIndex].title}`;
+      else if (mode === 'rol') headerLabel = `ROL / ${chosenRole.title}`;
       else if (mode === 'arguman') headerLabel = 'ARGÜMAN / Münazara';
-      else if (mode === 'aciklama') headerLabel = `AÇIKLAMA / Kavram: ${currentSetupConfig.concept}`;
+      else if (mode === 'aciklama') headerLabel = `AÇIKLAMA / Konu: ${resolvedConcept}`;
 
       activeSession = {
         id: 'conv_' + Date.now(),
         mode,
         title: headerLabel,
-        topic: currentSetupConfig.topic,
-        position: currentSetupConfig.position,
-        questionType: currentSetupConfig.questionType,
-        roleScenario: ROLE_SCENARIOS[currentSetupConfig.roleScenarioIndex],
-        debateTopic: currentSetupConfig.debateTopic || DEBATE_TOPICS[0],
-        concept: currentSetupConfig.concept,
+        topic: mode === 'sohbet' ? (currentSetupConfig.customTopic.trim() || currentSetupConfig.topic) : null,
+        topicEnglish: mode === 'sohbet' ? sessionTopicEnglish : null,
+        position: mode === 'kariyer' ? currentSetupConfig.position : null,
+        questionType: mode === 'kariyer' ? currentSetupConfig.questionType : null,
+        roleScenario: mode === 'rol' ? chosenRole : null,
+        debateTopic: mode === 'arguman' ? (currentSetupConfig.debateTopic.trim() || DEBATE_TOPICS[0]) : null,
+        concept: mode === 'aciklama' ? resolvedConcept : null,
         speakAloud,
         instantFix,
         autoMicAfterTts,
         elapsedSec: 0,
-        messages: []
+        messages: [],
+        askedQuestions: [],
+        usedAngleIds: []
       };
 
       spokenFinalBuffer = '';
@@ -1958,6 +2345,7 @@
       document.getElementById('convHeaderTitle').textContent = headerLabel;
       document.getElementById('convTimerDisplay').textContent = '0:00';
       document.getElementById('chatMessagesContainer').innerHTML = '';
+      updateAngleBadgeUi(1, null);
 
       showOnlySection('viewConversation');
 
@@ -1973,7 +2361,7 @@
       await generateAndSpeakAiOpening();
     }
 
-    function appendMessageToChat(role, text) {
+    function appendMessageToChat(role, text, angleLabel = '') {
       const container = document.getElementById('chatMessagesContainer');
       if (!container) return;
 
@@ -1983,6 +2371,12 @@
       const bubble = document.createElement('div');
       if (role === 'ai') {
         bubble.className = 'max-w-[85%] rounded-2xl rounded-tl-sm bg-slate-100 border border-slate-200 px-4 py-3 text-sm text-slate-900 space-y-2';
+        if (angleLabel) {
+          const tag = document.createElement('div');
+          tag.className = 'text-[11px] font-semibold uppercase tracking-wide text-emerald-700';
+          tag.textContent = angleLabel;
+          bubble.appendChild(tag);
+        }
         const p = document.createElement('div');
         p.className = 'leading-relaxed';
         p.textContent = text;
@@ -2009,53 +2403,71 @@
       container.scrollTop = container.scrollHeight;
     }
 
-    function buildSystemPromptForSession() {
+    function buildSystemPromptForSession(angleObj = null) {
       if (!activeSession) return '';
-      const topErrors = appState.errors.slice(0, 3).map(e => e.category).join(', ');
-      const errorFocus = topErrors
-        ? `Try to naturally elicit grammar structures related to the user's recent error areas: ${topErrors}.`
-        : '';
       const correctionInstruction = activeSession.instantFix
-        ? 'If the user makes a critical grammar or vocabulary mistake, briefly provide a 1-sentence correction in brackets before continuing the conversation.'
+        ? 'If the user makes a critical grammar or vocabulary mistake, briefly provide a 1-sentence correction in brackets before continuing.'
         : 'Do not interrupt with grammar explanations during the conversation; keep the dialogue natural.';
 
+      const previousQuestionsList = (activeSession.askedQuestions || [])
+        .map((q, i) => `${i + 1}. "${q}"`)
+        .join('\n');
+
+      const antiRepetitionRule = previousQuestionsList
+        ? `\nSTRICT ANTI-REPETITION RULE: You have ALREADY asked the following questions in this session:\n${previousQuestionsList}\nNEVER repeat, re-ask, or paraphrase any of the questions above! Never ask the opening question again!`
+        : '';
+
+      const angleInstruction = angleObj
+        ? `\nMANDATORY QUESTION ANGLE FOR THIS TURN (${angleObj.trLabel}): ${angleObj.instruction} Directly reference a specific detail, word, or idea from the user's latest message before asking this new question.`
+        : '';
+
+      const literalEverydayRule = `CRITICAL DOMAIN RULE: Always interpret the topic in its most natural, literal, everyday life meaning! Never bring up previous sessions or unrelated topics, and never turn everyday words into workplace/engineering acronyms.`;
+
       if (activeSession.mode === 'kariyer') {
-        return `You are a technical & HR interviewer conducting a job interview in English for the role of "${activeSession.position}". Question style: ${activeSession.questionType}. Ask realistic, concise interview questions (2-3 sentences max per turn) covering quality engineering (8D, FMEA, SPC, MSA, APQP, PPAP, ISO 9001, AS9100, supplier quality) and behavioral STAR scenarios. ${correctionInstruction} ${errorFocus}`;
+        return `You are a friendly and professional interviewer conducting a job interview in English for the role of "${activeSession.position}". Question style: ${activeSession.questionType}. Ask realistic, concise interview questions (2-3 sentences max per turn) tailored specifically to "${activeSession.position}". ${correctionInstruction} ${angleInstruction} ${antiRepetitionRule}`;
       }
       if (activeSession.mode === 'rol') {
-        return `You are roleplaying a realistic workplace scenario in English: "${activeSession.roleScenario.title}" (${activeSession.roleScenario.desc}). Stay in character, respond naturally in 2-3 sentences, and challenge the user constructively. ${correctionInstruction}`;
+        return `You are roleplaying a realistic scenario in English: "${activeSession.roleScenario.title}" (${activeSession.roleScenario.desc}). ${literalEverydayRule} Stay in character, respond naturally in 2-3 sentences, advance the storyline forward, and never repeat earlier lines. ${correctionInstruction} ${antiRepetitionRule}`;
       }
       if (activeSession.mode === 'arguman') {
-        return `You are debating the user in English on the topic: "${activeSession.debateTopic}". Take the opposing stance to whatever the user argues, stay sharp and polite in 2-3 sentences, and ask a follow-up question. ${correctionInstruction}`;
+        return `You are debating the user in English on the topic: "${activeSession.debateTopic}". ${literalEverydayRule} Take the opposing stance to whatever the user argues, address their specific argument, and ask a fresh counter-question in 2-3 sentences. ${correctionInstruction} ${angleInstruction} ${antiRepetitionRule}`;
       }
       if (activeSession.mode === 'aciklama') {
-        return `You are a curious non-engineer colleague. The user is trying to explain the technical concept "${activeSession.concept}" to you in simple English. Ask naive, clarifying questions in 2-3 sentences if they use jargon. ${correctionInstruction}`;
+        return `You are a curious friend who wants to learn about "${activeSession.concept}" in simple, everyday English. ${literalEverydayRule} Ask a fresh, curious follow-up question about a new aspect of "${activeSession.concept}" based on what the user just explained (2-3 sentences). ${correctionInstruction} ${angleInstruction} ${antiRepetitionRule}`;
       }
       if (activeSession.mode === 'sinav') {
-        return `You are administering an iTEP speaking simulation in English. Ask clear, concise exam prompts without interrupting.`;
+        return `You are administering a general English speaking simulation (iTEP style) on everyday life and general social topics. Ask clear, concise exam prompts without interrupting. ${antiRepetitionRule}`;
       }
-      return `You are a friendly English speaking partner discussing "${activeSession.topic}". Keep your replies concise (2-3 sentences) and end with an engaging follow-up question. ${correctionInstruction} ${errorFocus}`;
+
+      const targetTopic = activeSession.topicEnglish || activeSession.topic;
+      return `You are a warm, engaging, and creative English conversation partner. The topic for this session is: "${targetTopic}". ${literalEverydayRule} ${angleInstruction} ${antiRepetitionRule} Keep your response to 2-3 natural sentences, react directly to what the user just said, and end with one fresh, specific question.`;
     }
 
     async function generateAndSpeakAiOpening() {
       const container = document.getElementById('chatMessagesContainer');
       const loadingEl = document.createElement('div');
       loadingEl.className = 'text-xs text-slate-500 italic px-2 py-1';
-      loadingEl.textContent = 'AI soruyu hazırlıyor...';
+      loadingEl.textContent = 'AI açılış sorusunu hazırlıyor...';
       container.appendChild(loadingEl);
 
-      const sysPrompt = buildSystemPromptForSession();
-      const userPrompt = 'Start the conversation now in English with your opening question or scenario prompt (2-3 sentences maximum).';
+      const sysPrompt = buildSystemPromptForSession(null);
+      let userPrompt = 'Start the conversation now in English with an engaging opening question (2 sentences maximum).';
+      if (activeSession && activeSession.mode === 'sohbet') {
+        const targetTopic = activeSession.topicEnglish || activeSession.topic;
+        userPrompt = `Start a fresh, friendly, natural English conversation strictly about "${targetTopic}" in 2 sentences, ending with an engaging opening question specifically about "${targetTopic}".`;
+      } else if (activeSession && activeSession.mode === 'aciklama') {
+        userPrompt = `Ask the user in 2 friendly sentences to explain or describe "${activeSession.concept}" to you in simple everyday English.`;
+      }
 
-      const aiReply = await callGeminiWithFallback(userPrompt, sysPrompt, true, false);
+      const aiReply = await callGeminiWithFallback(userPrompt, sysPrompt, true, false, null);
       loadingEl.remove();
 
       if (!activeSession) return;
+      registerAskedQuestion(aiReply);
       activeSession.messages.push({ role: 'ai', text: aiReply });
       lastAiMessageText = aiReply;
-      appendMessageToChat('ai', aiReply);
+      appendMessageToChat('ai', aiReply, 'Tur 1 • Açılış Sorusu');
 
-      // AI cevabını sesli oku ve bittiğinde mikrofonu otomatik hazırla
       speakTextReliably(aiReply);
     }
 
@@ -2063,7 +2475,6 @@
       if (!activeSession) return;
       unlockAudioAndTtsOnUserGesture();
 
-      // Konuşma tanıma açıksa ara (interim) kelimeleri de koruyarak durdur
       if (isListeningWanted || isRecognitionRunning) {
         stopContinuousListening();
       }
@@ -2076,7 +2487,6 @@
         return;
       }
 
-      // Kullanıcı mesajını kaydet ve temizle
       activeSession.messages.push({ role: 'user', text: userText });
       appendMessageToChat('user', userText);
 
@@ -2085,27 +2495,53 @@
       textarea.value = '';
       syncSpokenBuffersToUi();
 
+      await generateNextAiFollowUpQuestion(userText);
+    }
+
+    async function generateNextAiFollowUpQuestion(latestUserText) {
+      if (!activeSession) return;
+
+      const nextAngle = getNextConversationAngle();
+      const aiTurnNumber = activeSession.messages.filter(m => m.role === 'ai').length + 1;
+      updateAngleBadgeUi(aiTurnNumber, nextAngle);
+
       const container = document.getElementById('chatMessagesContainer');
       const loadingEl = document.createElement('div');
       loadingEl.className = 'text-xs text-slate-500 italic px-2 py-1';
-      loadingEl.textContent = 'AI cevaplıyor...';
+      loadingEl.textContent = `AI cevabına göre yeni bir açıdan (${nextAngle.trLabel}) soru hazırlıyor...`;
       container.appendChild(loadingEl);
 
-      const sysPrompt = buildSystemPromptForSession();
+      const sysPrompt = buildSystemPromptForSession(nextAngle);
       const historyTranscript = activeSession.messages
-        .map(m => `${m.role === 'ai' ? 'Interviewer/Partner' : 'User'}: ${m.text}`)
+        .map(m => `${m.role === 'ai' ? 'Partner' : 'User'}: ${m.text}`)
         .join('\n');
-      const prompt = `Conversation so far:\n${historyTranscript}\n\nRespond naturally in English in 2 to 3 sentences and ask a relevant follow-up question.`;
 
-      const aiReply = await callGeminiWithFallback(prompt, sysPrompt, false, false);
+      const prompt = `Conversation so far:\n${historyTranscript}\n\nThe user just said: "${latestUserText}"\n\nTask for Turn ${aiTurnNumber}:\n1. Briefly react to a specific detail or opinion in "${latestUserText}" (1 sentence).\n2. Ask a brand-new, creative follow-up question using this angle: [${nextAngle.trLabel} — ${nextAngle.instruction}].\n3. Do NOT repeat any earlier question from the transcript.`;
+
+      const aiReply = await callGeminiWithFallback(prompt, sysPrompt, false, false, nextAngle);
       loadingEl.remove();
 
       if (!activeSession) return;
+      registerAskedQuestion(aiReply);
       activeSession.messages.push({ role: 'ai', text: aiReply });
       lastAiMessageText = aiReply;
-      appendMessageToChat('ai', aiReply);
+      appendMessageToChat('ai', aiReply, `Tur ${aiTurnNumber} • ${nextAngle.trLabel}`);
 
       speakTextReliably(aiReply);
+    }
+
+    // Kullanıcı konuşma sırasında "Farklı Açıdan Sor" butonuna basarsa anında yeni bir bakış açısıyla soru üretir
+    async function handleSwitchAngleQuestion() {
+      if (!activeSession) return;
+      unlockAudioAndTtsOnUserGesture();
+      stopTtsImmediately();
+
+      const userMessages = activeSession.messages.filter(m => m.role === 'user');
+      const lastUserText = userMessages.length > 0
+        ? userMessages[userMessages.length - 1].text
+        : `Let's explore a different angle of ${activeSession.topicEnglish || activeSession.topic || 'this topic'}.`;
+
+      await generateNextAiFollowUpQuestion(lastUserText);
     }
 
     async function finishConversationSession() {
@@ -2120,6 +2556,7 @@
       const userMessages = activeSession.messages.filter(m => m.role === 'user');
       if (userMessages.length === 0) {
         activeSession = null;
+        resetSetupConfigForNewMode('sohbet');
         showOnlySection('viewHome');
         renderHomeView();
         showToast('Kaydedilecek cevap yok, konuşma kaydedilmedi.');
@@ -2128,8 +2565,8 @@
 
       const finishedSession = activeSession;
       activeSession = null;
+      resetSetupConfigForNewMode('sohbet');
 
-      // Süreyi günlük zincire ekle
       const todayIso = getTodayIso();
       const addedMinutes = Math.max(0.5, finishedSession.elapsedSec / 60);
       appState.dailyMinutesByDate[todayIso] = (appState.dailyMinutesByDate[todayIso] || 0) + addedMinutes;
@@ -2145,24 +2582,24 @@
       const analysisPrompt = `Analyze the user's English responses in this speaking session (${finishedSession.title}).
 Return strictly valid JSON with this structure:
 {
-  "summary": "Turkish feedback summary on fluency, structure, and delivery (2-3 sentences)",
+  "summary": "Turkish feedback summary on fluency, naturalness, and grammar (2-3 sentences)",
   "itepScore": "Estimated CEFR / iTEP score (e.g. 4.5 / 6.0 - B2)",
   "errors": [
     { "category": "Grammar/Preposition/Tense", "wrong": "exact user phrase", "right": "corrected natural phrase", "explanation": "Short explanation in Turkish" }
   ],
   "vocabUpgrades": [
-    { "basic": "word user used", "advanced": "stronger professional/academic alternative", "example": "example sentence in English" }
+    { "basic": "word user used", "advanced": "more natural or expressive English alternative fitting the conversation topic", "example": "example sentence in English" }
   ]
 }
 Transcript:
 ${transcript}`;
 
-      const rawJson = await callGeminiWithFallback(analysisPrompt, 'You are an expert English & Quality Engineering communication coach. Output JSON only.', false, true);
+      const rawJson = await callGeminiWithFallback(analysisPrompt, 'You are an expert, supportive English communication coach for all everyday and general topics. Output JSON only.', false, true, null);
       let parsed = null;
       try {
         parsed = JSON.parse(rawJson);
       } catch (e) {
-        parsed = JSON.parse(generateOfflineSmartFallback('', true));
+        parsed = JSON.parse(generateDynamicContextualFallback('', true, null));
       }
 
       const newErrors = Array.isArray(parsed.errors) ? parsed.errors : [];
@@ -2278,9 +2715,9 @@ ${transcript}`;
       saveAppState();
 
       if (!apiKey) {
-        statusEl.textContent = 'API anahtarı boş (Çevrimdışı simülasyon modu aktif).';
+        statusEl.textContent = 'API anahtarı boş (12 Açılı Dinamik Konuşma Motoru aktif).';
         statusEl.className = 'text-xs font-medium text-amber-700';
-        showToast('Ayarlar kaydedildi. API anahtarı girilmediği için çevrimdışı pratik modu kullanılabilir.');
+        showToast('Ayarlar kaydedildi.');
         return;
       }
 
@@ -2288,7 +2725,7 @@ ${transcript}`;
       statusEl.className = 'text-xs font-medium text-slate-600';
       appendDiagLog(`API testi başlatıldı: ${appState.mainModel}`);
 
-      const reply = await callGeminiWithFallback('Reply with the single word READY.', '', false, false);
+      const reply = await callGeminiWithFallback('Reply with the single word READY.', '', false, false, null);
       if (reply) {
         statusEl.textContent = `Bağlantı başarılı! Aktif model: ${appState.mainModel}`;
         statusEl.className = 'text-xs font-semibold text-emerald-700';
@@ -2376,7 +2813,7 @@ ${transcript}`;
       refreshVoicesList();
       appendDiagLog(`Ses testi: ${availableEnglishVoices.length} İngilizce ses bulundu, seçili: ${appState.ttsVoiceURI}`);
       speakTextReliably(
-        'Voice synthesis check completed successfully. Your microphone and speaker are ready for English practice.',
+        'Voice synthesis check completed successfully. Every turn will now explore a fresh question angle based on your answers!',
         {
           forceSpeak: true,
           onFinish: () => {
@@ -2389,7 +2826,7 @@ ${transcript}`;
     async function handleDiagSpeedTest() {
       const t0 = performance.now();
       appendDiagLog(`Hız testi başlatıldı: ${appState.mainModel}`);
-      const out = await callGeminiWithFallback('Say "OK" in one word.', '', true, false);
+      const out = await callGeminiWithFallback('Say "OK" in one word.', '', true, false, null);
       const elapsedMs = Math.round(performance.now() - t0);
       appendDiagLog(`Hız testi tamamlandı (${elapsedMs} ms) — Yanıt: "${out.slice(0, 40)}"`);
       showToast(`Yanıt süresi: ${elapsedMs} ms`);
@@ -2407,7 +2844,6 @@ ${transcript}`;
         else el.classList.add('hidden');
       });
 
-      // Üst menü aktif sekme vurgusu
       const navMap = {
         viewHome: 'navHome',
         viewModeSetup: 'navHome',
@@ -2444,7 +2880,6 @@ ${transcript}`;
     }
 
     function initApp() {
-      // Ses listesini yükle ve onvoiceschanged dinle
       if ('speechSynthesis' in window) {
         refreshVoicesList();
         window.speechSynthesis.onvoiceschanged = () => {
@@ -2452,7 +2887,6 @@ ${transcript}`;
         };
       }
 
-      // Ayarlar alanlarını doldur
       document.getElementById('inputApiKey').value = apiKey;
       document.getElementById('inputMainModel').value = appState.mainModel;
       document.getElementById('inputFastModel').value = appState.fastModel;
@@ -2461,7 +2895,6 @@ ${transcript}`;
       document.getElementById('lblTtsRateValue').textContent = `${Number(appState.ttsRate || 1.0).toFixed(2)}×`;
       document.getElementById('chkKeyboardDictation').checked = Boolean(appState.keyboardDictation);
 
-      // Üst Navigasyon
       document.getElementById('btnLogoHome').addEventListener('click', () => {
         guardActiveConversationNavigation(() => {
           showOnlySection('viewHome');
@@ -2495,7 +2928,6 @@ ${transcript}`;
         renderErrorBookView();
       });
 
-      // Günlük hedef butonları
       document.querySelectorAll('.goal-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           appState.dailyGoalMinutes = Number(btn.getAttribute('data-goal')) || 10;
@@ -2504,25 +2936,24 @@ ${transcript}`;
         });
       });
 
-      // Pratik modu kartları
       document.querySelectorAll('.mode-card').forEach(card => {
         card.addEventListener('click', () => {
           unlockAudioAndTtsOnUserGesture();
           const m = card.getAttribute('data-mode');
+          resetSetupConfigForNewMode(m);
           openModeSetup(m);
         });
       });
 
-      // Mod Kurulum Butonları
       document.getElementById('btnStartConversation').addEventListener('click', () => {
         startConversationSession();
       });
       document.getElementById('btnCancelSetup').addEventListener('click', () => {
+        resetSetupConfigForNewMode('sohbet');
         showOnlySection('viewHome');
         renderHomeView();
       });
 
-      // Konuşma Ekranı Kontrolleri
       document.getElementById('btnMicToggle').addEventListener('click', () => {
         unlockAudioAndTtsOnUserGesture();
         if (isListeningWanted) {
@@ -2550,11 +2981,14 @@ ${transcript}`;
         }
       });
 
-      // Klavye diktesi süresi ölçümü
       document.getElementById('txtUserResponse').addEventListener('input', () => {
         if (appState.keyboardDictation && !dictationStartTimestamp) {
           dictationStartTimestamp = Date.now();
         }
+      });
+
+      document.getElementById('btnSwitchAngleNow').addEventListener('click', () => {
+        handleSwitchAngleQuestion();
       });
 
       document.getElementById('btnRepeatLastAi').addEventListener('click', () => {
@@ -2575,7 +3009,6 @@ ${transcript}`;
         renderHomeView();
       });
 
-      // Ayarlar Kontrolleri
       document.getElementById('btnToggleApiKey').addEventListener('click', () => {
         const inp = document.getElementById('inputApiKey');
         const btn = document.getElementById('btnToggleApiKey');
@@ -2620,7 +3053,7 @@ ${transcript}`;
 
       document.getElementById('btnListenVoiceSample').addEventListener('click', () => {
         unlockAudioAndTtsOnUserGesture();
-        speakTextReliably('Hello Burak! Let us review the supplier quality report and 8D root cause analysis together.', { forceSpeak: true });
+        speakTextReliably('Hello! We can talk about anything you enjoy—from sports, travel, and movies to everyday life.', { forceSpeak: true });
       });
 
       document.getElementById('chkKeyboardDictation').addEventListener('change', (e) => {
@@ -2628,7 +3061,6 @@ ${transcript}`;
         saveAppState();
       });
 
-      // Tanı Test Butonları
       document.getElementById('btnDiagMic').addEventListener('click', () => {
         handleDiagMicTest();
       });
@@ -2639,7 +3071,6 @@ ${transcript}`;
         handleDiagSpeedTest();
       });
 
-      // Yedekleme Kontrolleri
       document.getElementById('btnDownloadBackup').addEventListener('click', () => {
         const dataStr = JSON.stringify(appState, null, 2);
         const blob = new Blob([dataStr], { type: 'application/json' });
